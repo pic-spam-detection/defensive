@@ -1,4 +1,4 @@
-from defensive.spam_classifier import SpamClassifier
+from spam_classifier import SpamClassifier
 
 """
 Mail formatting :
