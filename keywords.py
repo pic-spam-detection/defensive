@@ -42,6 +42,22 @@ def detection_spam_mots_clefs(mail):
     
     return is_spam
 
+def verifier_urls(mail):
+    mots = mail.split()
+    url_keywords = ["http", "www", ".com", ".net", ".org"]
+    return any(url_keyword in mot for mot in mots for url_keyword in url_keywords)
+def verifier_exclamations(mail):
+    return mail.count('!') > 5  
+    
+def verifier_majuscules(mail):
+    mots = mail.split()
+    nombre_majuscules = sum(1 for mot in mots if mot.isupper())
+    return nombre_majuscules > len(mots) * 0.3  
+def verifier_sentiment(mail):
+    analyse_sentiment = pipeline("sentiment-analysis")
+    resultat = analyse_sentiment(mail)
+    return resultat[0]["label"] in ["NEGATIVE", "OVERLY_POSITIVE"]
+
 # Exemple d'utilisation
 mail = demander_et_retourner()
 if detection_spam_mots_clefs(mail):
@@ -50,3 +66,20 @@ if detection_spam_mots_clefs(mail):
 else:
     print("Le mail ne contient aucun mot suspecté de spam.")
     print(0)
+
+
+if verifier_urls(mail):
+    print("Le mail contient des liens ou des URL suspectes.")
+    print(1)
+if verifier_exclamations(mail):
+    print("Le mail contient trop de points d'exclamation, ce qui est suspect.")
+    print(1)
+
+if verifier_majuscules(mail):
+    print("Le mail contient trop de mots en majuscules, ce qui est suspect.")
+    print(1)
+
+if verifier_sentiment(mail):
+    print("Le mail contient trop d'émotion', ce qui est suspect.")
+    print(1)    
+
