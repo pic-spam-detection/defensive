@@ -1,4 +1,5 @@
 from spam_classifier import SpamClassifier
+import argparse
 
 """
 Mail formatting :
@@ -9,6 +10,10 @@ Mail formatting :
 Example : ["alice.bob", "gmail", "com", "Hello", "I am a spam mail", 1]
 
 """
+
+MODELS = {
+  'spam_classifier': SpamClassifier,
+}
 
 
 def is_spam(mail, model=SpamClassifier()):
@@ -30,8 +35,18 @@ def is_spam(mail, model=SpamClassifier()):
     return is_spam
 
 
-# Ask for a spam and a model to the user in the terminal
 
-mail = input("Enter the mail to check : ")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="A simple command line spam email generator (for training classifier models)."
+    )
 
-print(is_spam(mail))
+    parser.add_argument('--model', type=str, required=True, choices=MODELS.keys(),
+                        help='Models available: ' + ', '.join(MODELS.keys()))
+
+    args = parser.parse_args()
+    
+    # Ask for a spam and a model to the user in the terminal
+    mail = input("Enter the mail to check : ")
+
+    print(is_spam(mail, args.model))
