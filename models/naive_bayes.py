@@ -4,17 +4,17 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import joblib
 from sklearn.metrics import accuracy_score
+from models.vectorizer import Vectorizer
 
 
 class NaiveBayes:
     
     def __init__(self, dataset, checkpoint_path=None):
-        self.vectorizer = CountVectorizer(stop_words="english")
         self.classifier = MultinomialNB()
+        self.vectorizer = Vectorizer(checkpoint_path=checkpoint_path).vectorizer
 
         if checkpoint_path is not None:
             self.classifier = joblib.load(checkpoint_path + 'classifier.joblib')
-            self.vectorizer = joblib.load(checkpoint_path + 'vectorizer.joblib')
         
     def train(self, dataset, save_path=None):
 
@@ -44,14 +44,25 @@ class NaiveBayes:
         args:
             mail: dict
                 mail information (adress, domain, domain_extension, subject, body, ground_truth)
-        """
-        adress = mail['adress']
-        domain = mail['domain']
-        domain_extension = mail['domain_extension']
-        subject = mail['subject']
-        body = mail['body']
-        ground_truth = mail['ground_truth']
 
-        return 0
+        returns:
+            (boolean) prediction 0 if ham, 1 if spam, (boolean) prediction == ground_truth
+        """
+        try:
+            adress = mail['adress']
+            domain = mail['domain']
+            domain_extension = mail['domain_extension']
+            subject = mail['subject']
+            body = mail['body']
+            ground_truth = mail['ground_truth']
+        except:
+            raise ValueError("mail should be dictionary like with 'adress', 'domain', 'domain_extension', 'subject', 'body' and 'ground_truth'")
+
+
+        text =  mail['subject'] + ' ' + mail['body']
+        X = self.vectorizer.transform(text)
+        pred = self.classifier.predict(X)
+
+        return pred, pred==ground_truth
 
 

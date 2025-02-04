@@ -38,7 +38,7 @@ def is_spam(mail, model=SpamClassifier()):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="A simple command line spam email generator (for training classifier models)."
+        description="A simple command line spam email detector."
     )
 
     parser.add_argument('--model', type=str, required=True, choices=MODELS.keys(),
