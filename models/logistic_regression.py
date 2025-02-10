@@ -1,5 +1,4 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import joblib
@@ -7,18 +6,18 @@ from sklearn.metrics import accuracy_score
 from models.vectorizer import Vectorizer
 
 
-class NaiveBayes:
+class LogisticRegressionMail:
 
     def __init__(self, dataset, type="sklearn", checkpoint_path=None):
         if checkpoint_path is not None:
             try:
                 self.classifier = joblib.load(
-                    checkpoint_path + "classifier_bayes.joblib"
+                    checkpoint_path + "classifier_logistic_regression.joblib"
                 )
             except:
                 print("No classifier checkpoint found.")
         else:
-            self.classifier = MultinomialNB()
+            self.classifier = LogisticRegression(max_iter=1000, random_state=42)
 
         self.vectorizer = Vectorizer(type=type, checkpoint_path=checkpoint_path)
         self.type = type
@@ -41,7 +40,9 @@ class NaiveBayes:
         y_pred = self.classifier.predict(X_test)
 
         if self.type == "sklearn" and save_path is not None:
-            joblib.dump(self.classifier, save_path + "classifier_bayes.joblib")
+            joblib.dump(
+                self.classifier, save_path + "classifier_logistic_regression.joblib"
+            )
             joblib.dump(self.vectorizer, save_path + "vectorizer_sklearn.joblib")
 
         accuracy = (y_pred == y_test).mean()
