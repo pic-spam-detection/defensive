@@ -7,22 +7,22 @@ def download_dataset():
     if not os.path.exists("./data"):
         os.makedirs("data")
 
-    if not os.path.exists("./data/dataset_enron_annoted.zip"):
-        print("Téléchargement du dataset...")
-        try:
-            urllib.request.urlretrieve("https://github.com/MWiechmann/enron_spam_data/raw/refs/heads/master/enron_spam_data.zip", 
-                            "./data/dataset_enron_annoted.zip")
-            print("Téléchargement réussi.")
-        except:
-            print("Téléchargement échoué")
-            exit(1)
-
-
     if not os.path.exists("./data/enron_spam_data.csv"):
-        print("Extraction du dataset")
-        with zipfile.ZipFile("./data/dataset_enron_annoted.zip", 'r') as zip_ref:
-            zip_ref.extractall("./data/")
-        print("Extraction réussie.")
+        if not os.path.exists("./data/dataset_enron_annoted.zip"):
+            print("Téléchargement du dataset...")
+            try:
+                urllib.request.urlretrieve("https://github.com/MWiechmann/enron_spam_data/raw/refs/heads/master/enron_spam_data.zip", 
+                                "./data/dataset_enron_annoted.zip")
+                print("Téléchargement réussi.")
+            except:
+                print("Téléchargement échoué")
+                exit(1)
+
+        if not os.path.exists("./data/enron_spam_data.csv"):
+            print("Extraction du dataset")
+            with zipfile.ZipFile("./data/dataset_enron_annoted.zip", 'r') as zip_ref:
+                zip_ref.extractall("./data/")
+            print("Extraction réussie.")
 
     return "./data/enron_spam_data.csv"
 
