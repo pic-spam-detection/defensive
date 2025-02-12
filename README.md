@@ -51,3 +51,8 @@ Format de train et set :
 
 
 À la première utilisation, le modèle se chargera, ce qui prend quelques minutes.
+
+## **Remarque**
+
+Pour avoir les imports, il faut lancer avec l'option -m :
+EXEMPLE : python3 -m defensive.models.neural_network
