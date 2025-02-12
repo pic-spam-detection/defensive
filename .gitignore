@@ -8,6 +8,7 @@ __pycache__/
 
 # datasets
 *.csv
+*.zip
 
 # Distribution / packaging
 .Python
