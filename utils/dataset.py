@@ -4,6 +4,9 @@ import os
 import pandas as pd
 
 def download_dataset():
+    if not os.path.exists("./data"):
+        os.makedirs("data")
+
     if not os.path.exists("./data/dataset_enron_annoted.zip"):
         print("Téléchargement du dataset...")
         try:
