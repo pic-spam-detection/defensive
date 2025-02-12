@@ -23,30 +23,39 @@ class NaiveBayes:
         self.vectorizer = Vectorizer(type=type, checkpoint_path=checkpoint_path)
         self.type = type
 
+        if checkpoint_path is None:
+            self.train(dataset)
+
     def train(self, dataset, save_path=None):
 
-        mails_df = pd.DataFrame(dataset)
+        mails_df = pd.DataFrame(dataset).dropna()
         mails_df["text"] = mails_df["subject"] + " " + mails_df["body"]
 
         y = mails_df["ground_truth"]
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            mails_df["text"], y, test_size=0.2, random_state=47
-        )
+        # X_train, X_test, y_train, y_test = train_test_split(
+        #     mails_df["text"], y, test_size=0.2, random_state=47
+        # )
 
+        X_train = mails_df["text"]
+        y_train = y
+
+        if self.type == "sklearn":
+            self.vectorizer.vectorizer.fit_transform(X_train)
         X_train = self.vectorizer(X_train)
-        X_test = self.vectorizer(X_test)
+        # X_test = self.vectorizer(X_test)
 
         self.classifier.fit(X_train, y_train)
-        y_pred = self.classifier.predict(X_test)
+        # y_pred = self.classifier.predict(X_test)
 
         if self.type == "sklearn" and save_path is not None:
             joblib.dump(self.classifier, save_path + "classifier_bayes.joblib")
             joblib.dump(self.vectorizer, save_path + "vectorizer_sklearn.joblib")
 
-        accuracy = (y_pred == y_test).mean()
-        print(f"Accuracy: {accuracy} {accuracy_score(y_test, y_pred)}")
-        return accuracy
+        # accuracy = (y_pred == y_test).mean()
+        # print(f"Accuracy: {accuracy} {accuracy_score(y_test, y_pred)}")
+        # return accuracy
+        return 0
 
     def classify(self, mail):
         """
@@ -70,7 +79,7 @@ class NaiveBayes:
             )
 
         text = mail["subject"] + " " + mail["body"]
-
+        text = [text]
         X = self.vectorizer(text)
         pred = self.classifier.predict(X)
 
