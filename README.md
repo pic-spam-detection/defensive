@@ -28,3 +28,8 @@ python3 spam_detection.py
 ```
 
 À la première utilisation, le modèle se chargera, ce qui prend quelques minutes.
+
+## **Remarque**
+
+Pour avoir les imports, il faut lancer avec l'option -m :
+EXEMPLE : python3 -m defensive.models.neural_network
