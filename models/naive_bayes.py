@@ -1,10 +1,7 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import train_test_split
 import pandas as pd
 import joblib
-from sklearn.metrics import accuracy_score
 from models.vectorizer import Vectorizer
+from sklearn.naive_bayes import MultinomialNB
 
 
 class NaiveBayes:
@@ -84,3 +81,7 @@ class NaiveBayes:
         pred = self.classifier.predict(X)
 
         return pred, pred == ground_truth
+
+    def predict(self, X):
+        X = self.vectorizer(X)
+        return self.classifier.predict(X)
