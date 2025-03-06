@@ -1,5 +1,6 @@
 # from spam_classifier import SpamClassifier
 from models.naive_bayes import NaiveBayes
+from models.keywords import Keywords
 from utils.dataset import get_dataset
 import argparse
 
@@ -15,7 +16,8 @@ Example : ["alice.bob", "gmail", "com", "Hello", "I am a spam mail", 1]
 
 MODELS = {
     # "spam_classifier": SpamClassifier,
-    "naive_bayes" : NaiveBayes
+    "naive_bayes" : NaiveBayes,
+    "keywords" : Keywords
 }
 
 
@@ -125,3 +127,4 @@ if __name__ == "__main__":
     # mail = input("Enter the mail to check : ")
 
     print(is_spam(mail, model))
+
