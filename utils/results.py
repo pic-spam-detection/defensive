@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Literal
+import numpy as np
 
 import matplotlib.pyplot as plt
 import torch
@@ -34,6 +34,9 @@ class Results:
             outputs: Raw logits from a classifier
             labels: Ground truth labels
         """
+        if isinstance(outputs, np.ndarray):
+            outputs = torch.tensor(outputs)
+
         predicted = torch.sigmoid(outputs) > 0.5
 
         self.total += labels.size(0)
