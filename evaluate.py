@@ -5,9 +5,15 @@ from torch.utils.data import DataLoader
 
 from src.models.classical_ml_classifier import ClassicalMLClassifier
 from src.test.classifier import test_classifier
-from src.utils.cli import (batch_size, checkpoint_path, classifier, device,
-                           save_results, vectorizer,
-                           vectorizer_checkpoint_path)
+from src.utils.cli import (
+    batch_size,
+    checkpoint_path,
+    classifier,
+    device,
+    save_results,
+    vectorizer,
+    vectorizer_checkpoint_path,
+)
 from src.utils.dataset import get_dataset
 from src.utils.results import Results
 from src.utils.spam_dataset import SpamDataset
