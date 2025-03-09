@@ -1,87 +1,105 @@
-import pandas as pd
+from typing import Dict, List, Literal, Optional, Tuple, Union
+
 import joblib
-from models.vectorizer import Vectorizer
+import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator
 from sklearn.naive_bayes import MultinomialNB
 
+from models.base_model import BaseModel
+from models.vectorizer import Vectorizer
 
-class NaiveBayes:
 
-    def __init__(self, dataset, type="sklearn", checkpoint_path=None):
-        if checkpoint_path is not None:
+class NaiveBayes(BaseModel):
+    def __init__(
+        self,
+        dataset: Optional[List[Dict[str, str]]] = None,
+        checkpoint_path: Optional[str] = None,
+        vectorizer_type: Literal["sklearn", "bert"] = "sklearn",
+        vectorizer_checkpoint_path: Optional[str] = None,
+    ):
+        self.vectorizer_type = vectorizer_type
+        self.vectorizer = Vectorizer(
+            type=vectorizer_type, checkpoint_path=vectorizer_checkpoint_path
+        )
+
+        # load or init the classifier
+        if checkpoint_path:
             try:
                 self.classifier = joblib.load(
                     checkpoint_path + "classifier_bayes.joblib"
                 )
-            except:
-                print("No classifier checkpoint found.")
+            except FileNotFoundError:
+                print("No classifier checkpoint found. Initializing a new classifier.")
+                self.classifier = MultinomialNB()
         else:
             self.classifier = MultinomialNB()
 
-        self.vectorizer = Vectorizer(type=type, checkpoint_path=checkpoint_path)
-        self.type = type
-
-        if checkpoint_path is None:
+        # train the model if dataset is provided
+        if dataset is not None:
             self.train(dataset)
 
-    def train(self, dataset, save_path=None):
-
+    def train(
+        self, dataset: List[Dict[str, str]], save_path: Optional[str] = None
+    ) -> None:
+        """Train the NaiveBayes classifier"""
+        # preprocess dataset
+        # TODO: preprocessing should be done outside of the model
         mails_df = pd.DataFrame(dataset).dropna()
         mails_df["text"] = mails_df["subject"] + " " + mails_df["body"]
 
-        y = mails_df["ground_truth"]
-
-        # X_train, X_test, y_train, y_test = train_test_split(
-        #     mails_df["text"], y, test_size=0.2, random_state=47
-        # )
-
+        # prepare training data
         X_train = mails_df["text"]
-        y_train = y
+        y_train = mails_df["ground_truth"]
 
-        if self.type == "sklearn":
+        # vectorize
+        if self.vectorizer_type == "sklearn":
             self.vectorizer.vectorizer.fit_transform(X_train)
         X_train = self.vectorizer(X_train)
-        # X_test = self.vectorizer(X_test)
 
+        # train
         self.classifier.fit(X_train, y_train)
-        # y_pred = self.classifier.predict(X_test)
 
-        if self.type == "sklearn" and save_path is not None:
+        # save checkpoint and vectorizer
+        if self.vectorizer_type == "sklearn" and save_path is not None:
             joblib.dump(self.classifier, save_path + "classifier_bayes.joblib")
             joblib.dump(self.vectorizer, save_path + "vectorizer_sklearn.joblib")
 
-        # accuracy = (y_pred == y_test).mean()
-        # print(f"Accuracy: {accuracy} {accuracy_score(y_test, y_pred)}")
-        # return accuracy
-        return 0
-
-    def classify(self, mail):
+    def classify(self, mail: Dict[str, str]) -> Tuple[int, bool]:
         """
-        args:
+        Classify a single email
+        Args:
             mail: dict
                 mail information (address, domain, domain_extension, subject, body, ground_truth)
-
-        returns:
-            (boolean) prediction 0 if ham, 1 if spam, (boolean) prediction == ground_truth
         """
-        try:
-            adress = mail["address"]
-            domain = mail["domain"]
-            domain_extension = mail["domain_extension"]
-            subject = mail["subject"]
-            body = mail["body"]
-            ground_truth = mail["ground_truth"]
-        except:
+        required_keys = {
+            "address",
+            "domain",
+            "domain_extension",
+            "subject",
+            "body",
+            "ground_truth",
+        }
+        if not required_keys.issubset(mail.keys()):
             raise ValueError(
-                "Mail should be dictionary like 'address', 'domain', 'domain_extension', 'subject', 'body' and 'ground_truth'"
+                "Mail dictionary must contain keys: 'address', 'domain', 'domain_extension', 'subject', 'body', 'ground_truth'"
             )
 
+        # preprocess text for classification
         text = mail["subject"] + " " + mail["body"]
-        text = [text]
-        X = self.vectorizer(text)
-        pred = self.classifier.predict(X)
+        X = self.vectorizer([text])
+
+        # predict
+        pred = self.classifier.predict(X)[0]
+        ground_truth = mail["ground_truth"]
 
         return pred, pred == ground_truth
 
-    def predict(self, X):
+    def predict(self, X: Union[List[str], pd.Series]) -> np.ndarray:
+        """Predict labels for a list of texts"""
         X = self.vectorizer(X)
         return self.classifier.predict(X)
+
+    def get_model(self) -> BaseEstimator:
+        """Returns model itself"""
+        return self.classifier

@@ -1,10 +1,10 @@
 from utils import dataset
 import pandas as pd
 
-#Pour lancer le code, se mettre dans le dossier defensive et faire la commande "python3 -m models.neural_network"
+# Pour lancer le code, se mettre dans le dossier defensive et faire la commande "python3 -m models.neural_network"
 
 data = dataset.get_dataset()
-#Data est un dictionnaire avec les clefs "train" et "test". Train est un pandas, test aussi.
+# Data est un dictionnaire avec les clefs "train" et "test". Train est un pandas, test aussi.
 
 import numpy as np
 import pandas as pd
@@ -22,7 +22,9 @@ data_train = data["train"]
 
 # Séparer les caractéristiques et les labels
 text_columns = ["subject", "body", "adress", "domain", "domain_extension"]
-numeric_columns = [col for col in data_train.columns if col not in text_columns + ["ground_truth"]]
+numeric_columns = [
+    col for col in data_train.columns if col not in text_columns + ["ground_truth"]
+]
 
 X_numeric = data_train[numeric_columns].values
 y = data_train["ground_truth"]
@@ -49,11 +51,13 @@ X = np.hstack((X_numeric, X_text))
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Construction du réseau de neurones
-model = keras.Sequential([
-    layers.Dense(32, activation="relu", input_shape=(X_train.shape[1],)),
-    layers.Dense(16, activation="relu"),
-    layers.Dense(1, activation="sigmoid")
-])
+model = keras.Sequential(
+    [
+        layers.Dense(32, activation="relu", input_shape=(X_train.shape[1],)),
+        layers.Dense(16, activation="relu"),
+        layers.Dense(1, activation="sigmoid"),
+    ]
+)
 
 # Compilation du modèle
 model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
@@ -87,5 +91,5 @@ X_test = np.hstack((X_test_numeric, X_test_text))
 loss_test, accuracy_test = model.evaluate(X_test, y_test)
 print(f"Précision du modèle sur le test : {accuracy_test:.4f}")
 
-#Précision du modèle : 0.6823
-#Précision du modèle sur le test : 0.4815
+# Précision du modèle : 0.6823
+# Précision du modèle sur le test : 0.4815

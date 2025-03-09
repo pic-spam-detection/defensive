@@ -1,27 +1,107 @@
 import argparse
 
+
 class Keywords:
     def __init__(self):
         self.mots_clefs = [
-            "free", "urgent", "offer", "gift", "promotion", "win", "money",
-            "congratulations", "100%", "refund", "cash", "limited offer",
-            "don't miss out", "sale", "discount", "satisfaction guaranteed",
-            "exclusive", "best price", "activate", "password", "click here",
-            "try", "free shipping", "loan", "fast", "benefit", "income",
-            "extra income", "lottery", "jackpot", "VIP", "your account", "access",
-            "secure", "unsolicited", "spam", "unsubscribe", "delete",
-            "confidential", "verify", "payment", "invoice", "freebie", "sample",
-            "today only", "limited", "exclusive promotion", "approval", "trial",
-            "contact us", "get rich", "property", "bonus", "exclusive sale",
-            "instant loan", "urgent", "100% free", "expired", "recover",
-            "big", "growth", "immediate", "credit", "insurance", "crypto",
-            "Bitcoin", "investment", "take advantage", "multiply", "cheap",
-            "great deal", "work from home", "miracle", "no risk", "career",
-            "job", "passive income", "prove", "start now", "share", "opportunity",
-            "immediately", "great chance", "update", "renew", "gifts",
-            "new customer", "secrets", "amazing", "very important",
-            "only for you", "participate", "no cost", "instant payment",
-            "registered", "for free", "cancellation", "confirm now"
+            "free",
+            "urgent",
+            "offer",
+            "gift",
+            "promotion",
+            "win",
+            "money",
+            "congratulations",
+            "100%",
+            "refund",
+            "cash",
+            "limited offer",
+            "don't miss out",
+            "sale",
+            "discount",
+            "satisfaction guaranteed",
+            "exclusive",
+            "best price",
+            "activate",
+            "password",
+            "click here",
+            "try",
+            "free shipping",
+            "loan",
+            "fast",
+            "benefit",
+            "income",
+            "extra income",
+            "lottery",
+            "jackpot",
+            "VIP",
+            "your account",
+            "access",
+            "secure",
+            "unsolicited",
+            "spam",
+            "unsubscribe",
+            "delete",
+            "confidential",
+            "verify",
+            "payment",
+            "invoice",
+            "freebie",
+            "sample",
+            "today only",
+            "limited",
+            "exclusive promotion",
+            "approval",
+            "trial",
+            "contact us",
+            "get rich",
+            "property",
+            "bonus",
+            "exclusive sale",
+            "instant loan",
+            "urgent",
+            "100% free",
+            "expired",
+            "recover",
+            "big",
+            "growth",
+            "immediate",
+            "credit",
+            "insurance",
+            "crypto",
+            "Bitcoin",
+            "investment",
+            "take advantage",
+            "multiply",
+            "cheap",
+            "great deal",
+            "work from home",
+            "miracle",
+            "no risk",
+            "career",
+            "job",
+            "passive income",
+            "prove",
+            "start now",
+            "share",
+            "opportunity",
+            "immediately",
+            "great chance",
+            "update",
+            "renew",
+            "gifts",
+            "new customer",
+            "secrets",
+            "amazing",
+            "very important",
+            "only for you",
+            "participate",
+            "no cost",
+            "instant payment",
+            "registered",
+            "for free",
+            "cancellation",
+            "confirm now",
         ]
 
     def classify(self, mail):
@@ -33,30 +113,23 @@ class Keywords:
         full_mail = f"{mail['subject']} {mail['body']}".lower()
         return int(any(mot in full_mail for mot in self.mots_clefs))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Détection de spam basée sur des mots-clés."
     )
 
     parser.add_argument(
-        "--subject",
-        type=str,
-        required=True,
-        help="Le sujet de l'email."
+        "--subject", type=str, required=True, help="Le sujet de l'email."
     )
 
-    parser.add_argument(
-        "--body",
-        type=str,
-        required=True,
-        help="Le corps de l'email."
-    )
+    parser.add_argument("--body", type=str, required=True, help="Le corps de l'email.")
 
     args = parser.parse_args()
-    
+
     mail = {"subject": args.subject, "body": args.body}
     model = Keywords()
-    
+
     if model.classify(mail):
         print("Le mail contient des mots suspectés de spam.")
         print(1)

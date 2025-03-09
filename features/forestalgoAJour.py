@@ -16,6 +16,7 @@ import zipfile
 import os
 import pandas as pd
 
+
 def download_dataset():
     if not os.path.exists("./data"):
         os.makedirs("data")
@@ -24,8 +25,10 @@ def download_dataset():
         if not os.path.exists("./data/dataset_enron_annoted.zip"):
             print("Téléchargement du dataset...")
             try:
-                urllib.request.urlretrieve("https://github.com/MWiechmann/enron_spam_data/raw/refs/heads/master/enron_spam_data.zip",
-                                "./data/dataset_enron_annoted.zip")
+                urllib.request.urlretrieve(
+                    "https://github.com/MWiechmann/enron_spam_data/raw/refs/heads/master/enron_spam_data.zip",
+                    "./data/dataset_enron_annoted.zip",
+                )
                 print("Téléchargement réussi.")
             except:
                 print("Téléchargement échoué")
@@ -33,15 +36,17 @@ def download_dataset():
 
         if not os.path.exists("./data/enron_spam_data.csv"):
             print("Extraction du dataset")
-            with zipfile.ZipFile("./data/dataset_enron_annoted.zip", 'r') as zip_ref:
+            with zipfile.ZipFile("./data/dataset_enron_annoted.zip", "r") as zip_ref:
                 zip_ref.extractall("./data/")
             print("Extraction réussie.")
 
     return "./data/enron_spam_data.csv"
 
+
 def load_dataset():
     download_dataset()
     return pd.read_csv("./data/enron_spam_data.csv")
+
 
 def get_dataset():
     dataset = load_dataset()
@@ -51,11 +56,13 @@ def get_dataset():
     dataset["domain"] = ""
     dataset["domain_extension"] = ""
     dataset.rename(columns={"Subject": "subject", "Message": "body"}, inplace=True)
-    dataset["ground_truth"] = dataset["Spam/Ham"].apply(lambda x: 0 if x == "ham" else 1)
+    dataset["ground_truth"] = dataset["Spam/Ham"].apply(
+        lambda x: 0 if x == "ham" else 1
+    )
     dataset = dataset.drop(columns="Spam/Ham")
 
-    dataset_train = dataset.iloc[:int(len_dataset * 0.8)]
-    dataset_test = dataset.iloc[int(len_dataset * 0.8):]
+    dataset_train = dataset.iloc[: int(len_dataset * 0.8)]
+    dataset_test = dataset.iloc[int(len_dataset * 0.8) :]
 
     dataset_train = dataset_train.sample(len(dataset_train), random_state=42)
     dataset_test = dataset_test.sample(len(dataset_test), random_state=42)
@@ -63,6 +70,7 @@ def get_dataset():
     dataset = {"train": dataset_train, "test": dataset_test}
 
     return dataset
+
 
 import pandas as pd
 import re
@@ -79,41 +87,49 @@ test_df = data["test"]
 print(f" Colonnes du dataset : {train_df.columns}")
 
 # Définition des expressions régulières et listes de mots-clés
-URL_PATTERN = re.compile(r'https?://\S+|www\.\S+')
+URL_PATTERN = re.compile(r"https?://\S+|www\.\S+")
 SPAM_KEYWORDS = {"free", "win", "money", "prize", "buy now", "urgent"}
+
 
 # Fonction d'extraction des features
 def extraire_features(subject, body):
     mail = f"{subject} {body}"  # Fusionner sujet et corps du mail
-    mots = re.findall(r'\b\w+\b', mail.lower())
+    mots = re.findall(r"\b\w+\b", mail.lower())
     mots_freq = Counter(mots)
     nombre_majuscules = sum(1 for mot in mots if mot.isupper())
     nombre_mots = len(mots)
     nombre_caracteres = len(mail)
     densite_majuscules = nombre_majuscules / nombre_mots if nombre_mots > 0 else 0
-    densite_exclamations = mail.count('!') / nombre_mots if nombre_mots > 0 else 0
-    densite_urls = len(URL_PATTERN.findall(mail)) / nombre_mots if nombre_mots > 0 else 0
+    densite_exclamations = mail.count("!") / nombre_mots if nombre_mots > 0 else 0
+    densite_urls = (
+        len(URL_PATTERN.findall(mail)) / nombre_mots if nombre_mots > 0 else 0
+    )
 
     result = {
         "spam_mots_clefs": any(word in mots_freq for word in SPAM_KEYWORDS),
         "contient_url": bool(URL_PATTERN.search(mail)),
-        "trop_exclamations": mail.count('!') > 5,
+        "trop_exclamations": mail.count("!") > 5,
         "trop_majuscules": nombre_majuscules > nombre_mots * 0.3,
         "longueur_suspecte": nombre_caracteres > 5000,
         "nombre_mots": nombre_mots,
         "nombre_caracteres": nombre_caracteres,
         "densite_majuscules": densite_majuscules,
         "densite_exclamations": densite_exclamations,
-        "densite_urls": densite_urls
+        "densite_urls": densite_urls,
     }
 
     return result
 
+
 import pandas as pd
 
 # Appliquer la fonction d'extraction des features
-train_features = train_df.apply(lambda row: extraire_features(row["subject"], row["body"]), axis=1)
-test_features = test_df.apply(lambda row: extraire_features(row["subject"], row["body"]), axis=1)
+train_features = train_df.apply(
+    lambda row: extraire_features(row["subject"], row["body"]), axis=1
+)
+test_features = test_df.apply(
+    lambda row: extraire_features(row["subject"], row["body"]), axis=1
+)
 
 # Convertir en DataFrame et ajouter les labels
 train_features_df = pd.DataFrame(list(train_features))
@@ -143,7 +159,9 @@ X_train, X_test, y_train, y_test = train_test_split(
     train_features_df["label"],
     test_size=0.2,
     random_state=42,
-    stratify=train_features_df["label"]  #  Assure une répartition équitable des classes
+    stratify=train_features_df[
+        "label"
+    ],  #  Assure une répartition équitable des classes
 )
 
 # Vérifier si `y_test` contient bien des spams

@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import joblib
 from sklearn.metrics import accuracy_score
-from models.vectorizer import Vectorizer
+from classificators.vectorizer import Vectorizer
 
 
 class LogisticRegressionMail:

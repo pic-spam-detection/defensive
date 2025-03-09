@@ -11,13 +11,11 @@ class LogisticRegressionMail:
     def __init__(self, dataset, type="sklearn", checkpoint_path=None):
         if checkpoint_path is not None:
             try:
-                self.classifier = joblib.load(
-                    checkpoint_path + "classifier_svm.joblib"
-                )
+                self.classifier = joblib.load(checkpoint_path + "classifier_svm.joblib")
             except:
                 print("No classifier checkpoint found.")
         else:
-            self.classifier = SVC(kernel='linear', random_state=42)
+            self.classifier = SVC(kernel="linear", random_state=42)
 
         self.vectorizer = Vectorizer(type=type, checkpoint_path=checkpoint_path)
         self.type = type
