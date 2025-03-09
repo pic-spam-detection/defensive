@@ -15,7 +15,7 @@ class BaseModel(nn.Module, ABC):
         pass
 
     @abstractmethod
-    def classify(self, mail: Dict[str, str]) -> Tuple[int, bool]:
+    def classify(self, mail: List[str]) -> Tuple[int, bool]:
         """Classify a single email"""
         pass
 
