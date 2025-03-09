@@ -17,7 +17,7 @@ Example : ["alice.bob", "gmail", "com", "Hello", "I am a spam mail", 1]
 """
 
 
-MODELS = ["naive_bayes", "logistic_regression", "keywords"]
+MODELS = ["naive_bayes", "logistic_regression", "svm", "keywords"]
 
 
 def is_spam(mail: List[str], model: Optional[BaseModel]):

@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.svm import SVC
 
 from src.models.base_model import BaseModel
 from src.models.vectorizer import Vectorizer
@@ -21,6 +22,8 @@ def _get_classifier(
             return LogisticRegression(max_iter=1000, random_state=42)
         case "naive_bayes":
             return MultinomialNB()
+        case "svm":
+            return SVC(kernel="linear", random_state=42)
         case _:
             raise ValueError(
                 "Invalid classifier type. Choose 'logistic_regression' or 'naive_bayes'."
@@ -30,7 +33,9 @@ def _get_classifier(
 class ClassicalMLClassifier(BaseModel):
     def __init__(
         self,
-        classifier_type: Literal["naive_bayes", "logistic_regression"] = "naive_bayes",
+        classifier_type: Literal[
+            "naive_bayes", "logistic_regression", "svm"
+        ] = "naive_bayes",
         vectorizer_type: str = "sklearn",
         checkpoint_path: Optional[str] = None,
         vectorizer_checkpoint_path: Optional[str] = None,
