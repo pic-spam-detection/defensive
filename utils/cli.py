@@ -24,13 +24,22 @@ def classifier(func):
     return click.option(
         "--classifier",
         help="The classifier to use",
-        type=click.Choice(["naive_bayes"]),
+        type=click.Choice(["naive_bayes", "logistic_regression"]),
     )(func)
 
 
-def checkpoint(func, required=False):
+def checkpoint_path(func, required=False):
     return click.option(
-        "--checkpoint",
+        "--checkpoint-path",
+        help="The path to the model checkpoint",
+        required=required,
+        type=str,
+    )(func)
+
+
+def vectorizer_checkpoint_path(func, required=False):
+    return click.option(
+        "--vectorizer-checkpoint-path",
         help="The path to the model checkpoint",
         required=required,
         type=str,
@@ -43,4 +52,12 @@ def save_results(func):
         default=None,
         help="The path to save the results. If not provided, results will not be saved.",
         type=str,
+    )(func)
+
+
+def vectorizer(func):
+    return click.option(
+        "--vectorizer",
+        help="The vectorizer to use",
+        type=click.Choice(["sklearn"]),
     )(func)

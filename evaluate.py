@@ -1,21 +1,22 @@
+from test.classifier import test_classifier
+from typing import Literal, Optional
+
 import click
-import torch
 from torch.utils.data import DataLoader
 
-from test.classifier import test_classifier
-
-from models.naive_bayes import NaiveBayes
-
-from utils.dataset import get_dataset
-from utils.spam_dataset import SpamDataset
+from models.classical_ml_classifier import ClassicalMLClassifier
 from utils.cli import (
     batch_size,
-    checkpoint,
+    checkpoint_path,
     classifier,
     device,
     save_results,
+    vectorizer,
+    vectorizer_checkpoint_path,
 )
+from utils.dataset import get_dataset
 from utils.results import Results
+from utils.spam_dataset import SpamDataset
 
 
 @click.group()
@@ -25,37 +26,36 @@ def main():
 
 @main.command()
 @classifier
+@vectorizer
 @batch_size
-@checkpoint
-@save_results
 @device
+@checkpoint_path
+@vectorizer_checkpoint_path
+@save_results
 def test(
-    classifier: str,
-    checkpoint: str,
+    classifier: Literal["naive_bayes", "logistic_regression"],
+    vectorizer: Literal["sklearn", "bert"],
     batch_size: int,
     device: str,
-    save_results: str | None,
+    save_results: Optional[str],
+    checkpoint_path: str,
+    vectorizer_checkpoint_path: Optional[str],
 ):
     """Test classifiers."""
 
     # Load the dataset
     dataset = get_dataset()
-    train_dataset = dataset["test"]
     test_dataset = dataset["test"]
 
     test_dataset = SpamDataset(test_dataset)
     dataloader = DataLoader(test_dataset, batch_size=batch_size)
 
-    match classifier:
-        case "naive_bayes":
-            model = NaiveBayes(train_dataset)
-        case _:
-            raise ValueError(f"Unknown classifier variant: {classifier}")
+    model = ClassicalMLClassifier(
+        classifier, vectorizer, checkpoint_path, vectorizer_checkpoint_path
+    )
 
-    if checkpoint:
-        model.load_state_dict(
-            torch.load(checkpoint, weights_only=True, map_location=device)
-        )
+    if checkpoint_path is None:
+        model.train(dataset["train"])
 
     results = test_classifier(model, dataloader, device)
 
