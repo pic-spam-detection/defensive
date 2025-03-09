@@ -58,16 +58,16 @@ class Vectorizer:
         self, X_train: Union[List[str], Any], X_test: Union[List[str], Any]
     ) -> Tuple[Any, Any]:
         if self.type == "sklearn":
-            train_embeddings = self.vectorizer.fit_transform(X_train)
-            test_embeddings = self.vectorizer.transform(X_test)
-            return train_embeddings.toarray(), test_embeddings.toarray()
+            train_embeddings = self.vectorizer.fit_transform(X_train).toarray()
+            test_embeddings = self.vectorizer.transform(X_test).toarray()
 
-        X_train = self._run_bert(X_train)
+            train_embeddings = torch.tensor(train_embeddings, dtype=torch.float32)
+            test_embeddings = torch.tensor(test_embeddings, dtype=torch.float32)
+        else:
+            train_embeddings = self._run_bert(X_train)
+            test_embeddings = self._run_bert(X_test)
 
-        if X_test is not None:
-            X_test = self._run_bert(X_test)
-
-        return X_train, X_test
+        return train_embeddings, test_embeddings
 
     def _save_embeddings(
         self,
