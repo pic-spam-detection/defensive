@@ -1,8 +1,10 @@
+import os
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
 import joblib
 import numpy as np
 import pandas as pd
+import torch
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
@@ -62,45 +64,59 @@ class ClassicalMLClassifier(BaseModel):
         )
 
     def train(
-        self, dataset: List[Dict[str, str]], save_path: Optional[str] = None
-    ) -> float:
+        self,
+        embeddings_path: Optional[str] = None,
+        dataset: Optional[List[Dict[str, str]]] = None,
+        save_path: Optional[str] = None,
+    ):
         """Train the classifier"""
-        # preprocess dataset
-        mails_df = pd.DataFrame(dataset)
-        mails_df = mails_df.dropna(subset=["subject", "body"])
-        mails_df["text"] = mails_df["subject"] + " " + mails_df["body"]
 
-        # prepare training data
-        y = mails_df["ground_truth"]
-        X_train, X_test, y_train, y_test = train_test_split(
-            mails_df["text"], y, test_size=0.2, random_state=42
-        )
+        if embeddings_path is not None:
+            # load precomputed embeddings
+            X_train, X_test, y_train, y_test = self._load_embeddings(embeddings_path)
 
-        # vectorize
-        if self.vectorizer_type == "sklearn":
-            X_train = self.vectorizer.vectorizer.fit_transform(X_train)
+        elif dataset is not None:
+            # preprocess dataset
+            mails_df = pd.DataFrame(dataset)
+            mails_df = mails_df.dropna(subset=["subject", "body"])
+            mails_df["text"] = mails_df["subject"] + " " + mails_df["body"]
+
+            # prepare training data
+            y = mails_df["ground_truth"]
+            X_train, X_test, y_train, y_test = train_test_split(
+                mails_df["text"], y, test_size=0.2, random_state=42
+            )
+
+            # vectorize
+            if self.vectorizer_type == "sklearn":
+                X_train = self.vectorizer.vectorizer.fit_transform(X_train)
+            else:
+                X_train = self.vectorizer(X_train)
+
             X_test = self.vectorizer(X_test)
+
+            # save embeddings
+            if save_path:
+                if self.vectorizer_type == "sklearn":
+                    joblib.dump(
+                        self.classifier,
+                        save_path + f"classifier_{self.classifier_type}.joblib",
+                    )
+                    joblib.dump(
+                        self.vectorizer, save_path + "vectorizer_sklearn.joblib"
+                    )
+                else:
+                    self._save_embeddings(X_train, X_test, y_train, y_test)
         else:
-            # for best -> just transform the data
-            X_train = self.vectorizer(X_train)
-            X_test = self.vectorizer(X_test)
+            raise ValueError("Provide either 'embeddings' or 'dataset'")
 
         # train
         self.classifier.fit(X_train, y_train)
-
-        # save checkpoint and vectorizer
-        if self.vectorizer_type == "sklearn" and save_path is not None:
-            joblib.dump(
-                self.classifier, save_path + f"classifier_{self.classifier_type}.joblib"
-            )
-            joblib.dump(self.vectorizer, save_path + "vectorizer_sklearn.joblib")
 
         # evaluate
         y_pred = self.classifier.predict(X_test)
         accuracy = accuracy_score(y_test, y_pred)
         print(f"Accuracy: {accuracy}")
-
-        return accuracy
 
     def classify(self, mail: Dict[str, str]) -> Tuple[int, bool]:
         """
@@ -140,3 +156,30 @@ class ClassicalMLClassifier(BaseModel):
     def get_model(self) -> BaseEstimator:
         """Returns model itself"""
         return self.classifier
+
+    def _save_embeddings(
+        self,
+        X_train: Union[np.ndarray, torch.Tensor],
+        X_test: Union[np.ndarray, torch.Tensor],
+        y_train: Union[np.ndarray, torch.Tensor],
+        y_test: Union[np.ndarray, torch.Tensor],
+        save_path: str,
+    ) -> None:
+        """Save embeddings to disk"""
+        torch.save(X_train, save_path + "X_train_embeddings.pt")
+        torch.save(X_test, save_path + "X_test_embeddings.pt")
+        torch.save(y_train, save_path + "y_train_embeddings.pt")
+        torch.save(y_test, save_path + "y_test_embeddings.pt")
+
+    def _load_embeddings(self, path: str) -> Tuple[
+        Union[np.ndarray, torch.Tensor],
+        Union[np.ndarray, torch.Tensor],
+        Union[np.ndarray, torch.Tensor],
+        Union[np.ndarray, torch.Tensor],
+    ]:
+        X_train = torch.load(os.path.join(path, "X_train_embeddings.pt"))
+        X_test = torch.load(os.path.join(path, "X_test_embeddings.pt"))
+        y_train = torch.load(os.path.join(path, "y_train_embeddings.pt"))
+        y_test = torch.load(os.path.join(path, "y_test_embeddings.pt"))
+
+        return X_train, X_test, y_train, y_test

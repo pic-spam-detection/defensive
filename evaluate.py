@@ -10,6 +10,7 @@ from src.utils.cli import (
     checkpoint_path,
     classifier,
     device,
+    embeddings_path,
     save_results,
     vectorizer,
     vectorizer_checkpoint_path,
@@ -29,16 +30,18 @@ def main():
 @vectorizer
 @batch_size
 @device
+@save_results
 @checkpoint_path
 @vectorizer_checkpoint_path
-@save_results
+@embeddings_path
 def test(
     classifier: Literal["naive_bayes", "logistic_regression"],
     vectorizer: Literal["sklearn", "bert"],
     batch_size: int,
     device: str,
     save_results: Optional[str],
-    checkpoint_path: str,
+    checkpoint_path: Optional[str],
+    embeddings_path: Optional[str],
     vectorizer_checkpoint_path: Optional[str],
 ):
     """Test classifiers."""
@@ -55,7 +58,7 @@ def test(
     )
 
     if checkpoint_path is None:
-        model.train(dataset["train"])
+        model.train(dataset=dataset["train"], embeddings_path=embeddings_path)
 
     results = test_classifier(model, dataloader, device)
 

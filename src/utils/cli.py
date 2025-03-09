@@ -61,3 +61,11 @@ def vectorizer(func):
         help="The vectorizer to use",
         type=click.Choice(["sklearn", "bert"]),
     )(func)
+
+
+def embeddings_path(func):
+    return click.option(
+        "--embeddings-path",
+        help="The path to saved embeddings.",
+        type=str,
+    )(func)
