@@ -1,45 +1,53 @@
+from typing import Any, List, Literal, Optional, Union
 
+import joblib
 from sklearn.feature_extraction.text import CountVectorizer
 from transformers import BertTokenizer
-import joblib
-import torch
+
 
 class Vectorizer:
-
-    def __init__(self, type='sklearn', checkpoint_path=None):
+    def __init__(
+        self,
+        type: Literal["sklearn", "bert"],
+        checkpoint_path: Optional[str] = None,
+    ):
         self.type = type
-        if type == 'sklearn':
-            self.sklearn(checkpoint_path)
+        self.vectorizer = None
 
-        elif type == 'bert':
-            self.bert()
-    
-    def __call__(self, X):
+        if self.type == "sklearn":
+            self._init_sklearn(checkpoint_path)
+        elif self.type == "bert":
+            self._init_bert()
+        else:
+            raise ValueError("Invalid vectorizer type. Choose 'sklearn' or 'bert'")
+
+    def __call__(self, X: Union[List[str], Any]) -> Any:
         return self.vectorize(X)
 
-    def sklearn(self, checkpoint_path=None):
-        if checkpoint_path is not None:
-            self.vectorizer = joblib.load(checkpoint_path + 'vectorizer_sklearn.joblib')
+    def _init_sklearn(self, checkpoint_path: Optional[str] = None):
+        if checkpoint_path:
+            self.vectorizer = joblib.load(checkpoint_path + "vectorizer_sklearn.joblib")
         else:
             self.vectorizer = CountVectorizer()
 
-    def bert(self):
-        # Charger le tokenizer BERT
-        self.vectorizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    def _init_bert(self):
+        self.vectorizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-    def vectorize(self, X):
-        if self.type == 'sklearn':
+    def vectorize(self, X: Union[List[str], Any]) -> Any:
+        if self.type == "sklearn":
             return self.vectorizer.transform(X)
 
-        elif self.type == 'bert':
-            X = X.to_list()
+        elif self.type == "bert":
+            if not isinstance(X, list):
+                X = X.tolist()
             inputs = self.vectorizer(
                 X,
-                return_tensors='pt',
+                return_tensors="pt",
                 truncation=True,
                 max_length=10000,
-                padding='max_length'
+                padding="max_length",
             )
-            inputs = inputs['input_ids']
-            inputs = inputs.reshape(inputs.shape[0], -1)
-            return inputs
+            return inputs["input_ids"].reshape(inputs["input_ids"].shape[0], -1)
+
+        else:
+            raise ValueError("Invalid vectorizer type. Choose 'sklearn' or 'bert'")
