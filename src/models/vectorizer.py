@@ -1,6 +1,8 @@
-from typing import Any, List, Literal, Optional, Union
+import os
+from typing import Any, List, Literal, Optional, Tuple, Union
 
 import joblib
+import numpy as np
 import torch
 from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
@@ -26,8 +28,21 @@ class Vectorizer:
         else:
             raise ValueError("Invalid vectorizer type. Choose 'sklearn' or 'bert'")
 
-    def __call__(self, X: Union[List[str], Any]) -> Any:
-        return self._vectorize(X)
+    def __call__(
+        self,
+        X_train: Union[List[str], Any],
+        X_test: Union[List[str], Any],
+        save_folder: Optional[str] = None,
+    ) -> Any:
+        train_embeddings, test_embeddings = self._vectorize(X_train, X_test)
+
+        if save_folder is not None:
+            self._save_embeddings(
+                os.path.join(save_folder, "train.pt"), train_embeddings
+            )
+            self._save_embeddings(os.path.join(save_folder, "test.pt"), test_embeddings)
+
+        return train_embeddings, test_embeddings
 
     def _init_sklearn(self, checkpoint_path: Optional[str] = None):
         if checkpoint_path:
@@ -39,10 +54,30 @@ class Vectorizer:
         self.vectorizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.model = BertModel.from_pretrained("bert-base-uncased").to(DEVICE)
 
-    def _vectorize(self, X: Union[List[str], Any]) -> Any:
+    def _vectorize(
+        self, X_train: Union[List[str], Any], X_test: Union[List[str], Any]
+    ) -> Tuple[Any, Any]:
         if self.type == "sklearn":
-            return self.vectorizer.transform(X)
+            train_embeddings = self.vectorizer.fit_transform(X_train)
+            test_embeddings = self.vectorizer.transform(X_test)
+            return train_embeddings.toarray(), test_embeddings.toarray()
 
+        X_train = self._run_bert(X_train)
+
+        if X_test is not None:
+            X_test = self._run_bert(X_test)
+
+        return X_train, X_test
+
+    def _save_embeddings(
+        self,
+        save_path: str,
+        X: Union[np.ndarray, torch.Tensor],
+    ) -> None:
+        """Save embeddings to disk"""
+        torch.save(X, save_path)
+
+    def _run_bert(self, X: Union[List[str], Any]) -> torch.Tensor:
         if not isinstance(X, list):
             X = X.tolist()
 
@@ -64,4 +99,4 @@ class Vectorizer:
             cls_embeddings = word_embeddings[:, 0, :]  # use CLS token as the embedding
             embeddings.append(cls_embeddings.cpu())
 
-        return torch.stack(embeddings, dim=0)
+        return torch.stack(embeddings, dim=0).squeeze()
