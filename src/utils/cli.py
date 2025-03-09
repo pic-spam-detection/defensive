@@ -37,15 +37,6 @@ def checkpoint_path(func, required=False):
     )(func)
 
 
-def vectorizer_checkpoint_path(func, required=False):
-    return click.option(
-        "--vectorizer-checkpoint-path",
-        help="The path to the model checkpoint",
-        required=required,
-        type=str,
-    )(func)
-
-
 def save_results(func):
     return click.option(
         "--save-results",
@@ -63,9 +54,17 @@ def vectorizer(func):
     )(func)
 
 
-def embeddings_path(func):
+def train_embeddings_path(func):
     return click.option(
-        "--embeddings-path",
+        "--train-embeddings-path",
+        help="The path to saved embeddings.",
+        type=str,
+    )(func)
+
+
+def test_embeddings_path(func):
+    return click.option(
+        "--test-embeddings-path",
         help="The path to saved embeddings.",
         type=str,
     )(func)
