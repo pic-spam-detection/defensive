@@ -2,8 +2,8 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from models.base_model import BaseModel
-from utils.results import Results
+from src.models.base_model import BaseModel
+from src.utils.results import Results
 
 
 def is_deep_learning_model(classifier: BaseModel) -> bool:

@@ -1,22 +1,16 @@
-from test.classifier import test_classifier
 from typing import Literal, Optional
 
 import click
 from torch.utils.data import DataLoader
 
-from models.classical_ml_classifier import ClassicalMLClassifier
-from utils.cli import (
-    batch_size,
-    checkpoint_path,
-    classifier,
-    device,
-    save_results,
-    vectorizer,
-    vectorizer_checkpoint_path,
-)
-from utils.dataset import get_dataset
-from utils.results import Results
-from utils.spam_dataset import SpamDataset
+from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.test.classifier import test_classifier
+from src.utils.cli import (batch_size, checkpoint_path, classifier, device,
+                           save_results, vectorizer,
+                           vectorizer_checkpoint_path)
+from src.utils.dataset import get_dataset
+from src.utils.results import Results
+from src.utils.spam_dataset import SpamDataset
 
 
 @click.group()

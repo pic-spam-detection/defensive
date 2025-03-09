@@ -2,9 +2,9 @@
 import argparse
 from typing import List, Optional
 
-from models.base_model import BaseModel
-from models.classical_ml_classifier import ClassicalMLClassifier
-from utils.dataset import get_dataset
+from src.models.base_model import BaseModel
+from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.utils.dataset import get_dataset
 
 """
 Mail formatting :

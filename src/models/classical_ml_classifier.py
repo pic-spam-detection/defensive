@@ -9,8 +9,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
-from models.base_model import BaseModel
-from models.vectorizer import Vectorizer
+from src.models.base_model import BaseModel
+from src.models.vectorizer import Vectorizer
 
 
 def _get_classifier(
