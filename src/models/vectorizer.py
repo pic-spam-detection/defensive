@@ -1,8 +1,12 @@
 from typing import Any, List, Literal, Optional, Union
 
 import joblib
+import torch
 from sklearn.feature_extraction.text import CountVectorizer
-from transformers import BertTokenizer
+from tqdm import tqdm
+from transformers import BertModel, BertTokenizer
+
+from src.utils.const import DEVICE
 
 
 class Vectorizer:
@@ -13,6 +17,7 @@ class Vectorizer:
     ):
         self.type = type
         self.vectorizer = None
+        self.model = None
 
         if self.type == "sklearn":
             self._init_sklearn(checkpoint_path)
@@ -22,7 +27,7 @@ class Vectorizer:
             raise ValueError("Invalid vectorizer type. Choose 'sklearn' or 'bert'")
 
     def __call__(self, X: Union[List[str], Any]) -> Any:
-        return self.vectorize(X)
+        return self._vectorize(X)
 
     def _init_sklearn(self, checkpoint_path: Optional[str] = None):
         if checkpoint_path:
@@ -32,22 +37,30 @@ class Vectorizer:
 
     def _init_bert(self):
         self.vectorizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.model = BertModel.from_pretrained("bert-base-uncased").to(DEVICE)
 
-    def vectorize(self, X: Union[List[str], Any]) -> Any:
+    def _vectorize(self, X: Union[List[str], Any]) -> Any:
         if self.type == "sklearn":
             return self.vectorizer.transform(X)
 
-        elif self.type == "bert":
-            if not isinstance(X, list):
-                X = X.tolist()
+        if not isinstance(X, list):
+            X = X.tolist()
+
+        embeddings = []
+        for email in tqdm(X):
             inputs = self.vectorizer(
-                X,
+                email,
                 return_tensors="pt",
                 truncation=True,
-                max_length=10000,
+                max_length=512,
                 padding="max_length",
             )
-            return inputs["input_ids"].reshape(inputs["input_ids"].shape[0], -1)
+            inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
 
-        else:
-            raise ValueError("Invalid vectorizer type. Choose 'sklearn' or 'bert'")
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+
+            word_embeddings = outputs.last_hidden_state
+            embeddings.append(word_embeddings)
+
+        return embeddings

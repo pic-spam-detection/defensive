@@ -36,7 +36,7 @@ class ClassicalMLClassifier(BaseModel):
         classifier_type: Literal[
             "naive_bayes", "logistic_regression", "svm"
         ] = "naive_bayes",
-        vectorizer_type: str = "sklearn",
+        vectorizer_type: Literal["sklearn", "bert"] = "sklearn",
         checkpoint_path: Optional[str] = None,
         vectorizer_checkpoint_path: Optional[str] = None,
     ):
@@ -79,7 +79,7 @@ class ClassicalMLClassifier(BaseModel):
         # vectorize
         if self.vectorizer_type == "sklearn":
             X_train = self.vectorizer.vectorizer.fit_transform(X_train)
-            X_test = self.vectorizer.vectorizer.transform(X_test)
+            X_test = self.vectorizer(X_test)
         else:
             # for best -> just transform the data
             X_train = self.vectorizer(X_train)
