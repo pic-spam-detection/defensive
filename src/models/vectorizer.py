@@ -61,6 +61,7 @@ class Vectorizer:
                 outputs = self.model(**inputs)
 
             word_embeddings = outputs.last_hidden_state
-            embeddings.append(word_embeddings)
+            cls_embeddings = word_embeddings[:, 0, :]  # use CLS token as the embedding
+            embeddings.append(cls_embeddings.cpu())
 
-        return embeddings
+        return torch.stack(embeddings, dim=0)
