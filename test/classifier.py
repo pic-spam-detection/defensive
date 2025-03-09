@@ -1,14 +1,18 @@
 import torch
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-import pandas as pd
+
+from models.base_model import BaseModel
 from utils.results import Results
 
 
-def is_deep_learning_model(classifier):
-    return isinstance(classifier, torch.nn.Module)
+def is_deep_learning_model(classifier: BaseModel) -> bool:
+    return isinstance(classifier.get_model(), torch.nn.Module)
 
 
-def test_classifier(classifier, dataloader, device, verbose=True):
+def test_classifier(
+    classifier: BaseModel, dataloader: DataLoader, device: str, verbose: bool = True
+):
     """Test a classifier model on the given dataset loader"""
 
     results = Results()
