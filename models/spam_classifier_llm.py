@@ -11,4 +11,3 @@ class SpamClassifier:
         candidate_labels = ["spam", "not spam"]
         response = self.model(sequence_to_classify, candidate_labels)
         return response
-
