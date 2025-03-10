@@ -1,21 +1,24 @@
+from typing import Literal, Optional
+
 import click
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, TensorDataset
 
-from test.classifier import test_classifier
-
-from models.naive_bayes import NaiveBayes
-
-from utils.dataset import get_dataset
-from utils.spam_dataset import SpamDataset
-from utils.cli import (
+from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.models.vectorizer import Vectorizer
+from src.test.classifier import test_classifier
+from src.utils.cli import (
     batch_size,
-    checkpoint,
+    checkpoint_path,
     classifier,
     device,
     save_results,
+    test_embeddings_path,
+    train_embeddings_path,
+    vectorizer,
 )
-from utils.results import Results
+from src.utils.results import Results
+from src.utils.spam_dataset import SpamDataset
 
 
 @click.group()
@@ -25,39 +28,58 @@ def main():
 
 @main.command()
 @classifier
+@vectorizer
 @batch_size
-@checkpoint
-@save_results
 @device
+@save_results
+@checkpoint_path
+@train_embeddings_path
+@test_embeddings_path
 def test(
-    classifier: str,
-    checkpoint: str,
+    classifier: Literal["naive_bayes", "logistic_regression"],
+    vectorizer: Literal["sklearn", "bert"],
     batch_size: int,
     device: str,
-    save_results: str | None,
+    save_results: Optional[str],
+    checkpoint_path: Optional[str],
+    train_embeddings_path: Optional[str],
+    test_embeddings_path: Optional[str],
 ):
     """Test classifiers."""
+    vectorizer = Vectorizer(type=vectorizer)
 
-    # Load the dataset
-    dataset = get_dataset()
-    train_dataset = dataset["test"]
-    test_dataset = dataset["test"]
+    train_dataset = SpamDataset(split="train")
+    test_dataset = SpamDataset(split="test")
 
-    test_dataset = SpamDataset(test_dataset)
-    dataloader = DataLoader(test_dataset, batch_size=batch_size)
-
-    match classifier:
-        case "naive_bayes":
-            model = NaiveBayes(train_dataset)
-        case _:
-            raise ValueError(f"Unknown classifier variant: {classifier}")
-
-    if checkpoint:
-        model.load_state_dict(
-            torch.load(checkpoint, weights_only=True, map_location=device)
+    if train_embeddings_path is not None and test_embeddings_path is not None:
+        train_embeddings = torch.load(train_embeddings_path)
+        test_embeddings = torch.load(test_embeddings_path)
+    else:
+        train_embeddings, test_embeddings = vectorizer(
+            [sample["text"] for sample in train_dataset],
+            [sample["text"] for sample in test_dataset],
+            save_folder="embeddings",
         )
 
-    results = test_classifier(model, dataloader, device)
+    train_tensor = train_embeddings.clone().detach().float()
+    train_labels = torch.tensor(
+        [sample["label"] for sample in train_dataset], dtype=torch.long
+    )
+    train_dataset = TensorDataset(train_tensor, train_labels)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+    test_tensor = test_embeddings.clone().detach().float()
+    test_labels = torch.tensor(
+        [sample["label"] for sample in test_dataset], dtype=torch.long
+    )
+    test_dataset = TensorDataset(test_tensor, test_labels)
+    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+
+    model = ClassicalMLClassifier(classifier, checkpoint_path)
+    if checkpoint_path is None:
+        model.train(train_dataloader)
+
+    results = test_classifier(model, test_dataloader, device)
 
     print(results)
 

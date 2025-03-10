@@ -1,7 +1,10 @@
 # from spam_classifier import SpamClassifier
-from models.naive_bayes import NaiveBayes
-from utils.dataset import get_dataset
 import argparse
+from typing import List, Optional
+
+from src.models.base_model import BaseModel
+from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.utils.dataset import get_dataset
 
 """
 Mail formatting :
@@ -13,13 +16,11 @@ Example : ["alice.bob", "gmail", "com", "Hello", "I am a spam mail", 1]
 
 """
 
-MODELS = {
-    # "spam_classifier": SpamClassifier,
-    "naive_bayes" : NaiveBayes
-}
+
+MODELS = ["naive_bayes", "logistic_regression", "svm", "keywords"]
 
 
-def is_spam(mail, model=None):
+def is_spam(mail: List[str], model: Optional[BaseModel]):
     """
     Main function used to detect spam mails
 
@@ -45,22 +46,16 @@ if __name__ == "__main__":
         "--model",
         type=str,
         required=True,
-        choices=MODELS.keys(),
-        help="Models available: " + ", ".join(MODELS.keys()),
+        choices=MODELS,
+        help="Models available: " + ", ".join(MODELS),
     )
 
     parser.add_argument(
-        "--subject",
-        type=str,
-        required=True,
-        help="The subject of the email."
+        "--subject", type=str, required=True, help="The subject of the email."
     )
 
     parser.add_argument(
-        "--body",
-        type=str,
-        required=True,
-        help="The body of the email."
+        "--body", type=str, required=True, help="The body of the email."
     )
 
     parser.add_argument(
@@ -68,7 +63,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help="The address of the email.",
-        default=""
+        default="",
     )
 
     parser.add_argument(
@@ -76,7 +71,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help="The domain of the email.",
-        default=""
+        default="",
     )
 
     parser.add_argument(
@@ -84,7 +79,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help="The domain extension of the email.",
-        default=""
+        default="",
     )
 
     parser.add_argument(
@@ -92,15 +87,11 @@ if __name__ == "__main__":
         type=int,
         required=False,
         help="The ground truth of the email. 1 if spam, 0 otherwise.",
-        default=0
+        default=0,
     )
 
     parser.add_argument(
-        "--train",
-        type=bool,
-        required=False,
-        help="Train the model.",
-        default=False
+        "--train", type=bool, required=False, help="Train the model.", default=True
     )
     try:
         args = parser.parse_args()
@@ -113,13 +104,16 @@ if __name__ == "__main__":
         "domain_extension": args.domain_extension,
         "subject": args.subject,
         "body": args.body,
-        "ground_truth": 0
+        "ground_truth": 0,
     }
 
-    if args.model == "naive_bayes":
-        model = MODELS[args.model](dataset=get_dataset()["train"])
+    if args.model in ["naive_bayes", "logistic_regression", "keywords"]:
+        model = ClassicalMLClassifier(args.model)
     else:
-        model = MODELS[args.model]()
+        raise ValueError("NN based models are not yet available")
+
+    if args.train:
+        model.train(dataset=get_dataset()["train"])
 
     # # Ask for a spam and a model to the user in the terminal
     # mail = input("Enter the mail to check : ")

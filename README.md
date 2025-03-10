@@ -23,12 +23,18 @@ pip install -r requirements.txt
 
 ## **Usage**
 
+### Testing
 ```bash
-python3 -m spam_detection.py --model [model] --subject [subject] --body ["this is a spam mail"]
-python3 -m spam_detection.py --help
+python3 spam_detection.py --model [model] --subject [subject] --body ["this is a spam mail"]
+python3 spam_detection.py --help
 ```
 
 return : array(is_spam), array(is_spam==ground_truth)
+
+### Evaluation (accuracy, precision, recall, f1)
+```bash
+python3 evaluate.py test --classifier [classifier] --save-results [classifier.json]
+```
 
 ## **Code usage**
 
