@@ -1,11 +1,11 @@
 {
   "total": 3311,
-  "true_positives": 1367,
-  "true_negatives": 1665,
-  "false_positives": 18,
-  "false_negatives": 261,
-  "accuracy": 0.9157354273633344,
-  "precision": 0.9870036101083033,
-  "recall": 0.8396805896805897,
-  "f1": 0.9074012612014603
+  "true_positives": 314,
+  "true_negatives": 1678,
+  "false_positives": 5,
+  "false_negatives": 1314,
+  "accuracy": 0.6016309272123226,
+  "precision": 0.9843260188087775,
+  "recall": 0.1928746928746929,
+  "f1": 0.32254750898818696
 }
