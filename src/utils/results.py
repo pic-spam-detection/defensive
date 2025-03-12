@@ -1,8 +1,8 @@
 import json
 from dataclasses import dataclass
-import numpy as np
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from torch import Tensor
 
@@ -47,12 +47,29 @@ class Results:
 
     def compute_metrics(self):
         """Compute the metrics from the results"""
-        self.accuracy = (self.true_positives + self.true_negatives) / self.total
-        self.precision = self.true_positives / (
-            self.true_positives + self.false_positives
+        self.accuracy = (
+            (self.true_positives + self.true_negatives) / self.total
+            if self.total > 0
+            else 0.0
         )
-        self.recall = self.true_positives / (self.true_positives + self.false_negatives)
-        self.f1 = 2 * (self.precision * self.recall) / (self.precision + self.recall)
+
+        self.precision = (
+            self.true_positives / (self.true_positives + self.false_positives)
+            if (self.true_positives + self.false_positives) > 0
+            else 0.0
+        )
+
+        self.recall = (
+            self.true_positives / (self.true_positives + self.false_negatives)
+            if (self.true_positives + self.false_negatives) > 0
+            else 0.0
+        )
+
+        self.f1 = (
+            2 * (self.precision * self.recall) / (self.precision + self.recall)
+            if (self.precision + self.recall) > 0
+            else 0.0
+        )
 
     def __str__(self):
         parts = []
