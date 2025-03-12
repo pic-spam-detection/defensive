@@ -7,6 +7,7 @@ from src.dataset.dataloader import get_dataloader
 from src.dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
 from src.models.keywords_classifier import KeywordsClassifier
+from src.models.ltsm_classifier import LSTM_classifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
 from src.utils.cli import (
@@ -64,6 +65,7 @@ def test(
         if train_embeddings_path is not None and test_embeddings_path is not None:
             train_embeddings = torch.load(train_embeddings_path, weights_only=False)
             test_embeddings = torch.load(test_embeddings_path, weights_only=False)
+
         else:
             train_embeddings, test_embeddings = vectorizer(
                 [sample["text"] for sample in train_dataset],
@@ -79,7 +81,13 @@ def test(
             test_labels = [sample["label"] for sample in test_dataset]
             test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
 
-            model = ClassicalMLClassifier(classifier, checkpoint_path)
+            if classifier == "ltsm":
+                input_dim = vectorizer.get_vocab_size() + 1
+                model = LSTM_classifier(input_dim, checkpoint_path)
+
+            else:
+                model = ClassicalMLClassifier(classifier, checkpoint_path)
+
             if checkpoint_path is None:
                 model.train(train_dataloader)
 
