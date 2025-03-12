@@ -1,4 +1,4 @@
-from utils import dataset
+from dataset import dataset
 import pandas as pd
 
 # Pour lancer le code, se mettre dans le dossier defensive et faire la commande "python3 -m models.neural_network"

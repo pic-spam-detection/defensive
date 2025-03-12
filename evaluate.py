@@ -2,8 +2,9 @@ from typing import Literal, Optional
 
 import click
 import torch
-from torch.utils.data import DataLoader, TensorDataset
 
+from dataset.dataloader import get_dataloader
+from dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
@@ -18,7 +19,6 @@ from src.utils.cli import (
     vectorizer,
 )
 from src.utils.results import Results
-from src.utils.spam_dataset import SpamDataset
 
 
 @click.group()
@@ -61,19 +61,11 @@ def test(
             save_folder="embeddings",
         )
 
-    train_tensor = train_embeddings.clone().detach().float()
-    train_labels = torch.tensor(
-        [sample["label"] for sample in train_dataset], dtype=torch.long
-    )
-    train_dataset = TensorDataset(train_tensor, train_labels)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_labels = [sample["label"] for sample in train_dataset]
+    train_dataloader = get_dataloader(train_embeddings, train_labels, batch_size)
 
-    test_tensor = test_embeddings.clone().detach().float()
-    test_labels = torch.tensor(
-        [sample["label"] for sample in test_dataset], dtype=torch.long
-    )
-    test_dataset = TensorDataset(test_tensor, test_labels)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    test_labels = [sample["label"] for sample in test_dataset]
+    test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
 
     model = ClassicalMLClassifier(classifier, checkpoint_path)
     if checkpoint_path is None:
