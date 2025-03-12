@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from src.models.base_model import BaseModel
 from src.models.classical_ml_classifier import ClassicalMLClassifier
-from dataset.dataset import get_dataset
+from src.dataset.dataset import get_dataset
 
 """
 Mail formatting :

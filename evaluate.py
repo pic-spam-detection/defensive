@@ -3,8 +3,8 @@ from typing import Literal, Optional
 import click
 import torch
 
-from dataset.dataloader import get_dataloader
-from dataset.spam_dataset import SpamDataset
+from src.dataset.dataloader import get_dataloader
+from src.dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
