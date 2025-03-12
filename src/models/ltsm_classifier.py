@@ -78,7 +78,13 @@ class LSTM_classifier(BaseModel):
             losses.append(epoch_loss)
             print(f"Loss: {epoch_loss:.4f}")
 
-        torch.save(self.model.state_dict(), save_path)
+        checkpoint = {
+            "epoch": self.n_epochs,
+            "model_state_dict": self.model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": losses[-1],
+        }
+        torch.save(checkpoint, save_path)
 
     def predict(self, X: Union[List[str], pd.Series]) -> np.ndarray:
         """Predict labels for a list of texts"""
