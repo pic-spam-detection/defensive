@@ -6,6 +6,7 @@ import torch
 from src.dataset.dataloader import get_dataloader
 from src.dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.models.keywords import KeywordsClassifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
 from src.utils.cli import (
@@ -36,7 +37,7 @@ def main():
 @train_embeddings_path
 @test_embeddings_path
 def test(
-    classifier: Literal["naive_bayes", "logistic_regression"],
+    classifier: str,
     vectorizer: Literal["sklearn", "bert"],
     batch_size: int,
     device: str,
@@ -46,30 +47,41 @@ def test(
     test_embeddings_path: Optional[str],
 ):
     """Test classifiers."""
-    vectorizer = Vectorizer(type=vectorizer)
 
     train_dataset = SpamDataset(split="train")
     test_dataset = SpamDataset(split="test")
 
-    if train_embeddings_path is not None and test_embeddings_path is not None:
-        train_embeddings = torch.load(train_embeddings_path, weights_only=False)
-        test_embeddings = torch.load(test_embeddings_path, weights_only=False)
+    if classifier == "keywords":
+        model = KeywordsClassifier()
+
+        test_texts = [sample["text"] for sample in test_dataset]
+        test_labels = [sample["label"] for sample in test_dataset]
+
+        test_dataloader = zip(test_texts, test_labels)
     else:
-        train_embeddings, test_embeddings = vectorizer(
-            [sample["text"] for sample in train_dataset],
-            [sample["text"] for sample in test_dataset],
-            save_folder="embeddings",
-        )
+        vectorizer = Vectorizer(type=vectorizer)
 
-    train_labels = [sample["label"] for sample in train_dataset]
-    train_dataloader = get_dataloader(train_embeddings, train_labels, batch_size)
+        if train_embeddings_path is not None and test_embeddings_path is not None:
+            train_embeddings = torch.load(train_embeddings_path, weights_only=False)
+            test_embeddings = torch.load(test_embeddings_path, weights_only=False)
+        else:
+            train_embeddings, test_embeddings = vectorizer(
+                [sample["text"] for sample in train_dataset],
+                [sample["text"] for sample in test_dataset],
+                save_folder="embeddings",
+            )
 
-    test_labels = [sample["label"] for sample in test_dataset]
-    test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
+            train_labels = [sample["label"] for sample in train_dataset]
+            train_dataloader = get_dataloader(
+                train_embeddings, train_labels, batch_size
+            )
 
-    model = ClassicalMLClassifier(classifier, checkpoint_path)
-    if checkpoint_path is None:
-        model.train(train_dataloader)
+            test_labels = [sample["label"] for sample in test_dataset]
+            test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
+
+            model = ClassicalMLClassifier(classifier, checkpoint_path)
+            if checkpoint_path is None:
+                model.train(train_dataloader)
 
     results = test_classifier(model, test_dataloader, device)
 
