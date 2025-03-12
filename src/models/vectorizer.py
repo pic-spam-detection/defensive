@@ -48,7 +48,7 @@ class Vectorizer:
         if checkpoint_path:
             self.vectorizer = joblib.load(checkpoint_path + "vectorizer_sklearn.joblib")
         else:
-            self.vectorizer = CountVectorizer()
+            self.vectorizer = CountVectorizer(max_features=5000)
 
     def _init_bert(self):
         self.vectorizer = BertTokenizer.from_pretrained("bert-base-uncased")
