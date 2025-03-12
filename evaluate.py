@@ -52,8 +52,8 @@ def test(
     test_dataset = SpamDataset(split="test")
 
     if train_embeddings_path is not None and test_embeddings_path is not None:
-        train_embeddings = torch.load(train_embeddings_path)
-        test_embeddings = torch.load(test_embeddings_path)
+        train_embeddings = torch.load(train_embeddings_path, weights_only=False)
+        test_embeddings = torch.load(test_embeddings_path, weights_only=False)
     else:
         train_embeddings, test_embeddings = vectorizer(
             [sample["text"] for sample in train_dataset],
