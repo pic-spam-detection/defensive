@@ -36,7 +36,7 @@ return : array(is_spam), array(is_spam==ground_truth)
 
 ### Evaluation (accuracy, precision, recall, f1)
 ```bash
-python3 evaluate.py test --classifier [classifier] --save-results [classifier.json]
+python3 evaluate.py test --classifier [classifier] --vectorizer [sklearn, bert] --save-results [classifier.json]
 ```
 
 ## **Code usage**
