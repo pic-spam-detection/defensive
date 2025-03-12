@@ -24,7 +24,9 @@ def classifier(func):
     return click.option(
         "--classifier",
         help="The classifier to use",
-        type=click.Choice(["naive_bayes", "logistic_regression", "svm", "keywords"]),
+        type=click.Choice(
+            ["naive_bayes", "logistic_regression", "svm", "keywords", "ltsm"]
+        ),
     )(func)
 
 
