@@ -6,7 +6,7 @@ import torch
 from src.dataset.dataloader import get_dataloader
 from src.dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
-from src.models.keywords import KeywordsClassifier
+from src.models.keywords_classifier import KeywordsClassifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
 from src.utils.cli import (

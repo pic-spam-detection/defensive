@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from src.models.base_model import BaseModel
-from src.models.keywords import KeywordsClassifier
+from src.models.keywords_classifier import KeywordsClassifier
 from src.utils.results import Results
 
 
