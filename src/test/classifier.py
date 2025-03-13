@@ -7,6 +7,7 @@ from tqdm import tqdm
 from src.models.base_model import BaseModel
 from src.models.keywords_classifier import KeywordsClassifier
 from src.utils.results import Results
+from src.utils.const import DEVICE
 
 
 def is_deep_learning_model(classifier: BaseModel) -> bool:
@@ -16,9 +17,8 @@ def is_deep_learning_model(classifier: BaseModel) -> bool:
 def test_classifier(
     classifier: BaseModel,
     dataloader: Union[DataLoader, Tuple],
-    device: str,
     verbose: bool = True,
-):
+) -> Results:
     """Test a classifier model on the given dataset loader"""
 
     results = Results()
@@ -49,13 +49,13 @@ def test_classifier(
         # NN
 
         classifier.eval()
-        classifier.to(device)
+        classifier.to(DEVICE)
 
         with torch.no_grad():
             for emails, labels in tqdm(
                 dataloader, desc="Testing classifier", disable=not verbose
             ):
-                emails, labels = emails.to(device), labels.to(device)
+                emails, labels = emails.to(DEVICE), labels.to(DEVICE)
 
                 outputs = classifier(emails).squeeze()
                 results.add_predictions(outputs, labels)
