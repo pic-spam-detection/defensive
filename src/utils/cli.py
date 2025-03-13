@@ -24,7 +24,7 @@ def classifier(func):
     return click.option(
         "--classifier",
         help="The classifier to use",
-        type=click.Choice(["naive_bayes", "logistic_regression", "svm", "keywords"]),
+        type=click.Choice(["naive_bayes", "logistic_regression", "svm", "keywords", "vote", "ltsm"]),
     )(func)
 
 
@@ -67,4 +67,12 @@ def test_embeddings_path(func):
         "--test-embeddings-path",
         help="The path to saved embeddings.",
         type=str,
+    )(func)
+
+def vote_threshold(func):
+    return click.option(
+        "--vote-threshold",
+        default=0.5,
+        help="The threshold for the vote classifier",
+        type=float,
     )(func)

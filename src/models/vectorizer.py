@@ -104,3 +104,8 @@ class Vectorizer:
             embeddings.append(cls_embeddings.cpu())
 
         return torch.stack(embeddings, dim=0).squeeze()
+
+    def get_vocab_size(self) -> int:
+        if self.type == "sklearn":
+            return len(self.vectorizer.vocabulary_)
+        return self.vectorizer.vocab_size

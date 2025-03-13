@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from src.models.base_model import BaseModel
 from src.models.classical_ml_classifier import ClassicalMLClassifier
+from src.models.vote import Vote
 from src.dataset.dataset import get_dataset
 
 """
@@ -20,7 +21,7 @@ Example : ["alice.bob", "gmail", "com", "Hello", "I am a spam mail", 1]
 MODELS = ["naive_bayes", "logistic_regression", "svm", "keywords"]
 
 
-def is_spam(mail: List[str], model: Optional[BaseModel]):
+def is_spam(mail: List[str], model: [BaseModel]):
     """
     Main function used to detect spam mails
 
@@ -109,6 +110,8 @@ if __name__ == "__main__":
 
     if args.model in ["naive_bayes", "logistic_regression", "keywords"]:
         model = ClassicalMLClassifier(args.model)
+    elif args.model == "vote":
+        model = Vote(models_type=["naive_bayes", "logistic_regression","svm"], threshold=0.5)
     else:
         raise ValueError("NN based models are not yet available")
 

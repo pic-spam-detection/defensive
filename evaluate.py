@@ -2,11 +2,14 @@ from typing import Literal, Optional
 
 import click
 import torch
+import os
 
 from src.dataset.dataloader import get_dataloader
 from src.dataset.spam_dataset import SpamDataset
 from src.models.classical_ml_classifier import ClassicalMLClassifier
-from src.models.keywords import KeywordsClassifier
+from src.models.keywords_classifier import KeywordsClassifier
+from src.models.vote import Vote
+from src.models.ltsm_classifier import LSTM_classifier
 from src.models.vectorizer import Vectorizer
 from src.test.classifier import test_classifier
 from src.utils.cli import (
@@ -18,6 +21,7 @@ from src.utils.cli import (
     test_embeddings_path,
     train_embeddings_path,
     vectorizer,
+    vote_threshold
 )
 from src.utils.results import Results
 
@@ -36,6 +40,7 @@ def main():
 @checkpoint_path
 @train_embeddings_path
 @test_embeddings_path
+@vote_threshold
 def test(
     classifier: str,
     vectorizer: Literal["sklearn", "bert"],
@@ -45,6 +50,7 @@ def test(
     checkpoint_path: Optional[str],
     train_embeddings_path: Optional[str],
     test_embeddings_path: Optional[str],
+    vote_threshold: float,
 ):
     """Test classifiers."""
 
@@ -61,9 +67,14 @@ def test(
     else:
         vectorizer = Vectorizer(type=vectorizer)
 
+        if not os.path.exists("embeddings"):
+            os.makedirs("embeddings")
+
         if train_embeddings_path is not None and test_embeddings_path is not None:
             train_embeddings = torch.load(train_embeddings_path, weights_only=False)
             test_embeddings = torch.load(test_embeddings_path, weights_only=False)
+
+
         else:
             train_embeddings, test_embeddings = vectorizer(
                 [sample["text"] for sample in train_dataset],
@@ -78,8 +89,13 @@ def test(
 
             test_labels = [sample["label"] for sample in test_dataset]
             test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
-
-            model = ClassicalMLClassifier(classifier, checkpoint_path)
+            if classifier == "ltsm":
+                input_dim = vectorizer.get_vocab_size() + 1
+                model = LSTM_classifier(input_dim, checkpoint_path)
+            if classifier == "vote":
+                model = Vote(checkpoint_path=checkpoint_path, threshold=vote_threshold)
+            else:
+                model = ClassicalMLClassifier(classifier, checkpoint_path)
             if checkpoint_path is None:
                 model.train(train_dataloader)
 
@@ -87,7 +103,7 @@ def test(
 
     print(results)
 
-    if save_results is not None:
+    if "evaluation/" + save_results is not None:
         with open(save_results, "w") as f:
             f.write(results.to_json())
 

@@ -5,6 +5,9 @@ Ce repository contient les travaux de l’équipe Défense pour :
 - Développer un modèle de classification capable de **détecter les spams**.  
 - Évaluer et comparer notre solution avec les outils existants.  
 
+## La comparison des modéles developés
+<img src="./plots/comparison.png">
+
 
 ## **Installation**
 
@@ -33,7 +36,7 @@ return : array(is_spam), array(is_spam==ground_truth)
 
 ### Evaluation (accuracy, precision, recall, f1)
 ```bash
-python3 evaluate.py test --classifier [classifier] --save-results [classifier.json]
+python3 evaluate.py test --classifier [classifier] --vectorizer [sklearn, bert] --save-results [classifier.json]
 ```
 
 ## **Code usage**

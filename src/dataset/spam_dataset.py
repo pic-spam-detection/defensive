@@ -10,7 +10,7 @@ class SpamDataset(Dataset):
         csv_file: str = "data/enron_spam_data.csv",
         split: Literal["train", "test"] = "train",
         test_split_ratio: int = 0.1,
-        max_n_rows: int = 100,
+        max_n_rows: int = 10000000,
         content_max_length: int = 200,
     ):
         self.content_max_length = content_max_length

@@ -17,7 +17,7 @@ from src.models.base_model import BaseModel
 
 
 def _get_classifier(
-    classifier_type: Literal["naive_bayes", "logistic_regression"],
+    classifier_type: Literal["naive_bayes", "logistic_regression", "svm"],
 ) -> BaseEstimator:
     match classifier_type:
         case "logistic_regression":
@@ -28,7 +28,7 @@ def _get_classifier(
             return SVC(kernel="linear", random_state=42)
         case _:
             raise ValueError(
-                "Invalid classifier type. Choose 'logistic_regression' or 'naive_bayes'."
+                "Invalid classifier type. Choose 'logistic_regression' or 'naive_bayes' or 'svm."
             )
 
 
