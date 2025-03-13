@@ -111,7 +111,9 @@ if __name__ == "__main__":
     if args.model in ["naive_bayes", "logistic_regression", "keywords"]:
         model = ClassicalMLClassifier(args.model)
     elif args.model == "vote":
-        model = Vote(models_type=["naive_bayes", "logistic_regression","svm"], threshold=0.5)
+        model = Vote(
+            models_type=["naive_bayes", "logistic_regression", "svm"], threshold=0.5
+        )
     else:
         raise ValueError("NN based models are not yet available")
 
