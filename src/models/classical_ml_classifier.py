@@ -1,5 +1,6 @@
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
+import pickle
 import joblib
 import numpy as np
 import pandas as pd
@@ -46,7 +47,9 @@ class ClassicalMLClassifier(BaseModel):
 
         # load checkpoint if provided
         if checkpoint_path:
-            self.classifier = joblib.load(checkpoint_path)
+            with open(checkpoint_path, "rb") as f:
+                classifier_model = pickle.load(f)
+                self.classifier = classifier_model
 
     def train(
         self,
