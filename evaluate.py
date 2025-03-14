@@ -82,29 +82,29 @@ def test(
                 save_folder="embeddings",
             )
 
-            train_labels = [sample["label"] for sample in train_dataset]
-            train_dataloader = get_dataloader(
-                train_embeddings, train_labels, batch_size
-            )
+        train_labels = [sample["label"] for sample in train_dataset]
+        train_dataloader = get_dataloader(
+            train_embeddings, train_labels, batch_size
+        )
 
-            test_labels = [sample["label"] for sample in test_dataset]
-            test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
-            if classifier == "ltsm":
-                input_dim = vectorizer.get_vocab_size() + 1
-                model = LSTM_classifier(input_dim, checkpoint_path)
-            if classifier == "vote":
-                model = Vote(checkpoint_path=checkpoint_path, threshold=vote_threshold)
-            else:
-                model = ClassicalMLClassifier(classifier, checkpoint_path)
-            if checkpoint_path is None:
-                model.train(train_dataloader)
+        test_labels = [sample["label"] for sample in test_dataset]
+        test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
+        if classifier == "ltsm":
+            input_dim = vectorizer.get_vocab_size() + 1
+            model = LSTM_classifier(input_dim, checkpoint_path)
+        if classifier == "vote":
+            model = Vote(checkpoint_path=checkpoint_path, threshold=vote_threshold, use_meta_features=True)
+        else:
+            model = ClassicalMLClassifier(classifier, checkpoint_path)
+        if checkpoint_path is None:
+            model.train(train_dataloader)
 
     results = test_classifier(model, test_dataloader, device)
 
     print(results)
 
-    if "evaluation/" + save_results is not None:
-        with open(save_results, "w") as f:
+    if save_results is not None:
+        with open("evaluation/"+save_results, "w") as f:
             f.write(results.to_json())
 
 

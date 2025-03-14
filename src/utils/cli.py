@@ -76,3 +76,11 @@ def vote_threshold(func):
         help="The threshold for the vote classifier",
         type=float,
     )(func)
+
+def use_meta_features(func):
+    return click.option(
+        "--use-meta-features",
+        default=False,
+        help="Use a regression model to 'vote' using the other models as features",
+        type=bool,
+    )(func)
