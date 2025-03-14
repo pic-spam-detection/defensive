@@ -73,6 +73,16 @@ class Vectorizer:
 
         return train_embeddings, test_embeddings
 
+    def get_embeddings(self, X: List[str]) -> torch.Tensor:
+        if self.type == "sklearn":
+            embeddings = self.vectorizer.fit_transform(X)
+            return torch.tensor(embeddings.toarray(), dtype=torch.float32)
+
+        else:
+            embeddings = self._run_bert(X)
+
+        return embeddings
+
     def _save_embeddings(
         self,
         save_path: str,

@@ -24,7 +24,9 @@ def classifier(func):
     return click.option(
         "--classifier",
         help="The classifier to use",
-        type=click.Choice(["naive_bayes", "logistic_regression", "svm", "keywords", "vote", "ltsm"]),
+        type=click.Choice(
+            ["naive_bayes", "logistic_regression", "svm", "keywords", "vote", "ltsm"]
+        ),
     )(func)
 
 
@@ -34,6 +36,25 @@ def checkpoint_path(func, required=False):
         help="The path to the model checkpoint",
         required=required,
         type=str,
+    )(func)
+
+
+def file_path(func, required=False):
+    return click.option(
+        "--file-path",
+        help="The path to the dataset",
+        required=required,
+        type=str,
+    )(func)
+
+
+def save_checkpoint(func, required=False):
+    return click.option(
+        "--save-checkpoint",
+        help="Save weights of the model",
+        required=required,
+        default=True,
+        type=bool,
     )(func)
 
 
@@ -68,6 +89,7 @@ def test_embeddings_path(func):
         help="The path to saved embeddings.",
         type=str,
     )(func)
+
 
 def vote_threshold(func):
     return click.option(

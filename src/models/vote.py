@@ -11,26 +11,26 @@ from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.naive_bayes import MultinomialNB
 from xgboost import XGBClassifier
-
-
-MODELS = [ "logistic_regression", "svm"]
-# MODELS = ["naive_bayes", "logistic_regression",]
+from src.utils.const import CLASSICAL_ML_MODELS
 
 
 class Vote(BaseModel):
     def __init__(
         self,
-        models_type: List[BaseModel] = MODELS,
-        checkpoint_path: Optional[str] = None,
+        models_type: List[BaseModel] = CLASSICAL_ML_MODELS,
+        checkpoint_paths: Optional[List[str]] = None,
         threshold: float = 0.5,
         use_meta_features: bool = False,
     ):
         super().__init__()
         self.models = [
             ClassicalMLClassifier(
-                classifier_type=model, checkpoint_path=checkpoint_path
+                classifier_type=model,
+                checkpoint_path=(
+                    checkpoint_paths[index] if checkpoint_paths is not None else None
+                ),
             )
-            for model in models_type
+            for index, model in enumerate(models_type)
         ]
         self.threshold = threshold
         self.use_meta_features = use_meta_features

@@ -35,8 +35,21 @@ python3 spam_detection.py --help
 return : array(is_spam), array(is_spam==ground_truth)
 
 ### Evaluation (accuracy, precision, recall, f1)
+Le set de données utilisées est (`data/enron_spam_data.csv`)
+
 ```bash
 python3 evaluate.py test --classifier [classifier] --vectorizer [sklearn, bert] --save-results [classifier.json]
+
+or
+
+python3 evaluate.py test --classifier [classifier] --vectorizer [sklearn, bert] --save-results [classifier.json] -train-embeddings-path embeddings/train.pt --test-embeddings-path embeddings/test.pt
+```
+
+### Evaluation of a custom dataset (accuracy, precision, recall, f1)
+L'ensemble de données doit suivre le meme format que (`data/enron_spam_data.csv`)
+
+```bash
+python3 evaluate.py evaluate-dataset --file-path [path_to_dataset.csv] --save-results [results.csv]
 ```
 
 ## **Code usage**
