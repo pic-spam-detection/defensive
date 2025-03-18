@@ -45,6 +45,11 @@ or
 python3 evaluate.py test --classifier [classifier] --vectorizer [sklearn, bert] --save-results [classifier.json] -train-embeddings-path embeddings/train.pt --test-embeddings-path embeddings/test.pt
 ```
 
+With a HuggingFace model (mshenoda/roberta-spam) :
+```bash
+python evaluate.py test --classifier roberta --save-results [roberta.json] --save-checkpoint false
+```
+
 ### Evaluation of a custom dataset (accuracy, precision, recall, f1)
 L'ensemble de données doit suivre le meme format que (`data/enron_spam_data.csv`)
 
