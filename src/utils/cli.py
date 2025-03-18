@@ -25,7 +25,7 @@ def classifier(func):
         "--classifier",
         help="The classifier to use",
         type=click.Choice(
-            ["naive_bayes", "logistic_regression", "svm", "keywords", "vote", "ltsm"]
+            ["naive_bayes", "logistic_regression", "svm", "keywords", "vote", "ltsm", "roberta"]
         ),
     )(func)
 
@@ -72,6 +72,7 @@ def vectorizer(func):
         "--vectorizer",
         help="The vectorizer to use",
         type=click.Choice(["sklearn", "bert"]),
+        default="sklearn",
     )(func)
 
 
