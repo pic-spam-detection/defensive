@@ -37,6 +37,9 @@ class Results:
         if isinstance(outputs, np.ndarray):
             outputs = torch.tensor(outputs)
 
+        if isinstance(labels, np.ndarray) or isinstance(labels, list):
+            labels = torch.tensor(labels)
+
         predicted = torch.sigmoid(outputs) > 0.5
 
         self.total += labels.size(0)

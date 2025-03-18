@@ -14,6 +14,7 @@ from src.models.ltsm_classifier import LSTM_classifier
 from src.models.vectorizer import Vectorizer
 from src.models.vote import Vote
 from src.models.weight_manager import weight_manager
+from src.models.roberta import Roberta
 from src.test.classifier import test_classifier
 from src.utils.cli import (
     batch_size,
@@ -74,6 +75,14 @@ def test(
         test_labels = [sample["label"] for sample in test_dataset]
 
         test_dataloader = zip(test_texts, test_labels)
+
+    elif classifier == "roberta":
+        model = Roberta()
+        test_texts = [sample["text"] for sample in test_dataset]
+        test_labels = [sample["label"] for sample in test_dataset]
+
+        test_dataloader = zip(test_texts, test_labels)
+
     else:
         vectorizer_manager = Vectorizer(type=vectorizer)
 

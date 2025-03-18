@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from src.models.base_model import BaseModel
 from src.models.keywords_classifier import KeywordsClassifier
+from src.models.roberta import Roberta
 from src.utils.results import Results
 from src.utils.const import DEVICE
 
@@ -35,6 +36,15 @@ def test_classifier(
 
             results.add_predictions(outputs, labels)
 
+    elif isinstance(classifier, Roberta):
+        mails, labels = zip(*dataloader)
+        print("Predicting... (may take some time)")
+        outputs = classifier.predict(mails)
+        print("Predictions done.")
+        labels = torch.tensor(labels)
+
+        results.add_predictions(outputs, labels)
+
     elif not is_deep_learning_model(classifier):
         # classical ML
 
@@ -42,6 +52,7 @@ def test_classifier(
             dataloader, desc="Testing classifier", disable=not verbose
         ):
             outputs = classifier.predict(emails)
+            labels = torch.tensor(labels)
 
             results.add_predictions(outputs, labels)
 
