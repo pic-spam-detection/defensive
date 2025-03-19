@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union, Callable
 
 import pickle
 import joblib
@@ -40,10 +40,13 @@ class ClassicalMLClassifier(BaseModel):
             "naive_bayes", "logistic_regression", "svm"
         ] = "naive_bayes",
         checkpoint_path: Optional[str] = None,
+        vectorizer: Optional[Callable] = None,
     ):
         # init classifier
         self.classifier_type = classifier_type
         self.classifier = _get_classifier(classifier_type)
+
+        self.vectorizer = vectorizer
 
         # load checkpoint if provided
         if checkpoint_path:
@@ -98,12 +101,8 @@ class ClassicalMLClassifier(BaseModel):
                 mail information (address, domain, domain_extension, subject, body, ground_truth)
         """
         required_keys = {
-            "address",
-            "domain",
-            "domain_extension",
             "subject",
             "body",
-            "ground_truth",
         }
         if not required_keys.issubset(mail.keys()):
             raise ValueError(
@@ -112,13 +111,11 @@ class ClassicalMLClassifier(BaseModel):
 
         # preproces text
         text = mail["subject"] + " " + mail["body"]
-        X = self.vectorizer([text])
-
+        X = self.vectorizer.get_embeddings([text]).numpy()
         # predict
         pred = self.classifier.predict(X)[0]
-        ground_truth = mail["ground_truth"]
 
-        return pred, pred == ground_truth
+        return pred
 
     def predict(self, X: Union[List[str], pd.Series]) -> np.ndarray:
         """Predict labels for a list of texts"""

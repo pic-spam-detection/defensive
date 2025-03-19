@@ -25,16 +25,15 @@ def test_classifier(
     results = Results()
 
     if isinstance(classifier, KeywordsClassifier):
-        for emails, labels in tqdm(
-            dataloader, desc="Testing classifier", disable=not verbose
-        ):
-            outputs = classifier.predict(emails)
-            outputs = torch.tensor(outputs)
+        mails, labels = zip(*dataloader)
 
-            labels = torch.tensor(labels)
-            labels = labels.expand_as(outputs)
+        outputs = classifier.predict(mails)
+        outputs = torch.tensor(outputs)
 
-            results.add_predictions(outputs, labels)
+        labels = torch.tensor(labels)
+        labels = labels.expand_as(outputs)
+
+        results.add_predictions(outputs, labels)
 
     elif isinstance(classifier, Roberta):
         mails, labels = zip(*dataloader)

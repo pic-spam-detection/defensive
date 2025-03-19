@@ -133,7 +133,7 @@ class KeywordsClassifier(BaseModel):
     def predict(self, X: Union[List[str], pd.Series]) -> List[int]:
         results = []
         for email in X:
-            pred = int(any(mot in email for mot in self.mots_clefs))
+            pred = int(any(mot in email.split(" ") for mot in self.mots_clefs))
             results.append(pred)
         return results
 
