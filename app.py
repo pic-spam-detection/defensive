@@ -135,7 +135,7 @@ def run_model(classifier: str,
             train_dataloader = get_dataloader(
                 train_embeddings, train_labels, batch_size
             )
-            model.train(train_dataloader)
+            model.train_model(train_dataloader)
 
     loaded_models[classifier] = model
     return model

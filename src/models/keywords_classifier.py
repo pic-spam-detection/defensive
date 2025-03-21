@@ -122,7 +122,7 @@ class KeywordsClassifier(BaseModel):
 
         return pred, pred == ground_truth
 
-    def train(self, _dataloader: DataLoader, _save_path: Optional[str] = None):
+    def train_model(self, _dataloader: DataLoader, _save_path: Optional[str] = None):
         # no training is done
         pass
 

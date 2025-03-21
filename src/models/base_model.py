@@ -8,7 +8,7 @@ from torch import nn
 
 class BaseModel(nn.Module, ABC):
     @abstractmethod
-    def train(
+    def train_model(
         self, dataset: List[Dict[str, str]], save_path: Optional[str] = None
     ) -> Dict[str, nn.Module]:
         """Train the model on the provided dataset"""

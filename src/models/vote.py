@@ -84,13 +84,13 @@ class Vote(BaseModel):
             predictions = self.meta_classifier.predict(X_meta)
             return torch.tensor(predictions, dtype=torch.int)
 
-    def train(
+    def train_model(
         self, dataloader, save_path: Optional[str] = None
     ) -> Dict[str, BaseModel]:
         """Train the model on the provided dataset"""
         # Train each base model
         for model in self.models:
-            model.train(dataloader, save_path)
+            model.train_model(dataloader, save_path)
 
         if self.use_meta_features:
             # Extract training data from dataloader batches

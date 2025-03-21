@@ -37,7 +37,7 @@ class NaiveBayes(BaseModel):
 
         # train the model if dataset is provided
         if dataset is not None:
-            self.train(dataset)
+            self.train_model(dataset)
 
     def train(
         self, dataset: List[Dict[str, str]], save_path: Optional[str] = None

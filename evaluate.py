@@ -122,10 +122,7 @@ def test(
             train_dataloader = get_dataloader(
                 train_embeddings, train_labels, batch_size
             )
-            torch.save(train_dataloader, "train_loader.pth")
-            torch.save(test_dataloader, "test_loader.pth")
-
-            model.train(train_dataloader)
+            model.train_model(train_dataloader)
 
     results = test_classifier(model, test_dataloader, device)
 

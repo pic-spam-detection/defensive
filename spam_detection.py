@@ -118,7 +118,7 @@ if __name__ == "__main__":
         raise ValueError("NN based models are not yet available")
 
     if args.train:
-        model.train(dataset=get_dataset()["train"])
+        model.train_model(dataset=get_dataset()["train"])
 
     # # Ask for a spam and a model to the user in the terminal
     # mail = input("Enter the mail to check : ")

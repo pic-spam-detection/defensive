@@ -54,7 +54,7 @@ class ClassicalMLClassifier(BaseModel):
                 classifier_model = pickle.load(f)
                 self.classifier = classifier_model
 
-    def train(
+    def train_model(
         self,
         dataloader: DataLoader,
         save_path: Optional[str] = None,
