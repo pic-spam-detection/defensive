@@ -108,7 +108,11 @@ def test(
             model = LSTM_classifier(input_dim, checkpoint_path)
 
         elif classifier == "vote":
-            model = Vote(checkpoint_path=checkpoint_path, threshold=vote_threshold, use_meta_features=use_meta_features)
+            model = Vote(
+                checkpoint_path=checkpoint_path,
+                threshold=vote_threshold,
+                use_meta_features=use_meta_features,
+            )
 
         else:
             model = ClassicalMLClassifier(classifier, checkpoint_path)
@@ -118,6 +122,9 @@ def test(
             train_dataloader = get_dataloader(
                 train_embeddings, train_labels, batch_size
             )
+            torch.save(train_dataloader, "train_loader.pth")
+            torch.save(test_dataloader, "test_loader.pth")
+
             model.train(train_dataloader)
 
     results = test_classifier(model, test_dataloader, device)
@@ -155,7 +162,17 @@ def evaluate_dataset(
         print(f"\nProcessing {model_name}...")
 
         model = weight_manager.load(model_name)
-        results = test_classifier(model, dataloader)
+
+        if model_name == "roberta":
+            test_texts = [sample["text"] for sample in dataset]
+            test_labels = [sample["label"] for sample in dataset]
+
+            test_dataloader = zip(test_texts, test_labels)
+
+            results = test_classifier(model, test_dataloader)
+        else:
+            results = test_classifier(model, dataloader)
+
         results_dict = json.loads(results.to_json())
 
         results_df = pd.DataFrame([results_dict])
