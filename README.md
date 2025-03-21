@@ -40,7 +40,7 @@ python3 spam_detection.py --help
 
 Lancez :
 ```bash 
-python3 spam_detection.py
+python3 app.py
 ```
 
 Puis dans votre navigateur accédez à http://127.0.0.1:5000/ .
