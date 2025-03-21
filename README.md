@@ -27,10 +27,28 @@ pip install -r requirements.txt
 ## **Usage**
 
 ### Testing
+#### Terminal use
+Warning : Commande non à jour. Risque de ne pas fonctionner sur certains modèles. Veuillez tester avec l'application web ci-dessous, ou avec l'évaluation (partie suivante).
 ```bash
 python3 spam_detection.py --model [model] --subject [subject] --body ["this is a spam mail"]
 python3 spam_detection.py --help
 ```
+
+#### Application web
+
+<img src="./plots/appweb.png">
+
+Lancez :
+```bash 
+python3 spam_detection.py
+```
+
+Puis dans votre navigateur accédez à http://127.0.0.1:5000/ .
+
+Warning : les modèles utilisant BERT (hors RoBERTa), ainsi que le vote ne sont pas encore supportés sur l'application web.
+Le premier lancement de chaque modèle peut prendre du temps.
+
+
 
 return : array(is_spam), array(is_spam==ground_truth)
 
@@ -83,5 +101,5 @@ Format de train et set :
 
 ## **Remarque**
 
-Pour avoir les imports, il faut lancer avec l'option -m :
+Selon votre environnement, pour avoir les imports, il peut être nécessaire de lancer avec l'option -m :
 EXEMPLE : python3 -m defensive.models.neural_network
