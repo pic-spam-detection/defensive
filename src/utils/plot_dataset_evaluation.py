@@ -35,6 +35,7 @@ markers = ['o', 's', 's', 'o']
 
 for i, df in enumerate(dataframes):
     dataset_name = df["dataset"].iloc[0]
+    df = df.sort_values(by="f1", ascending=True)
 
     for j, (metric, style) in enumerate(zip(
         ["recall", "accuracy", "precision", "f1"],
