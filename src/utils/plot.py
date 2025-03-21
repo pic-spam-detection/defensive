@@ -41,9 +41,15 @@ plt.xlabel("Models", fontsize=14)
 plt.title("Model Performance Metrics", fontsize=18, fontweight='bold', pad=15)
 
 # Add a light background to the legend and position it outside the plot
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1), 
-           frameon=True, fontsize=12, facecolor='white', framealpha=0.8)
-
+plt.legend(
+    loc="upper center",
+    bbox_to_anchor=(0.5, 1.25),
+    frameon=True,
+    fontsize=12,
+    facecolor="white",
+    framealpha=0.8,
+    ncol=4
+)
 # Set the x-ticks and labels with better spacing
 plt.xticks(np.arange(len(df)), df.index, rotation=45, ha='right', fontsize=10)
 plt.tick_params(axis='both', which='major', labelsize=10)
