@@ -104,7 +104,7 @@ def test(
         test_dataloader = get_dataloader(test_embeddings, test_labels, batch_size)
 
         if classifier == "ltsm":
-            input_dim = vectorizer_manager.get_vocab_size() + 1
+            input_dim = vectorizer_manager.get_vocab_size()
             model = LSTM_classifier(input_dim, checkpoint_path)
 
         elif classifier == "vote":

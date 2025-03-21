@@ -4,23 +4,19 @@ from torch import nn
 class LSTM(nn.Module):
     def __init__(
         self,
-        vocab_size,
+        input_size,  # This should match the BERT embedding size (768)
         hidden_dim,
         output_dim,
-        embedding_dim=256,
         num_heads=8,
         droupout=0.5,
     ):
         super(LSTM, self).__init__()
 
-        # embedding layer
-        self.embedding = nn.Embedding(
-            num_embeddings=vocab_size, embedding_dim=embedding_dim
-        )
-
-        # lstm
+        # no embedding layer needed for BERT embeddings
         self.lstm = nn.LSTM(
-            input_size=embedding_dim, hidden_size=hidden_dim, batch_first=True
+            input_size=input_size,  # Input size is 768 for BERT
+            hidden_size=hidden_dim,
+            batch_first=True,
         )
 
         # multihead attention
@@ -37,22 +33,17 @@ class LSTM(nn.Module):
         self.output = nn.Sequential(nn.Linear(hidden_dim, output_dim), nn.Sigmoid())
 
     def forward(self, input_sequence):
-        input_sequence = input_sequence.long()
-        embeddings = self.embedding(input_sequence)
-        hidden_states, _ = self.lstm(embeddings)
+        # input_sequence shape: (batch_size, sequence_length, embedding_dim)
+        hidden_states, _ = self.lstm(input_sequence)  # LSTM expects 3D input
 
-        # permute shape (needed for multuhead attention)
-        hidden_states = hidden_states.permute(
-            1, 0, 2
-        )  # (sequence_length, batch_size, hidden_dim)
+        # permute shape for multihead attention
+        hidden_states = hidden_states.permute(1, 0, 2)  # (sequence_length, batch_size, hidden_dim)
 
         # attention
         context_vector, _ = self.attention(hidden_states, hidden_states, hidden_states)
 
         # permute back
-        context_vector = context_vector.permute(
-            1, 0, 2
-        )  # (batch_size, sequence_length, hidden_dim)
+        context_vector = context_vector.permute(1, 0, 2)  # (batch_size, sequence_length, hidden_dim)
         context_vector = context_vector.mean(dim=1)  # (batch_size, hidden_dim)
 
         dense_output = self.dense(context_vector)

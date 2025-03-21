@@ -109,13 +109,12 @@ class Vectorizer:
             with torch.no_grad():
                 outputs = self.model(**inputs)
 
-            word_embeddings = outputs.last_hidden_state
-            cls_embeddings = word_embeddings[:, 0, :]  # use CLS token as the embedding
-            embeddings.append(cls_embeddings.cpu())
+            word_embeddings = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, embedding_dim)
+            embeddings.append(word_embeddings.cpu())
 
-        return torch.stack(embeddings, dim=0).squeeze()
+        return torch.cat(embeddings, dim=0)  # Shape: (batch_size, sequence_length, embedding_dim)
 
     def get_vocab_size(self) -> int:
         if self.type == "sklearn":
             return len(self.vectorizer.vocabulary_)
-        return self.vectorizer.vocab_size
+        return 768  # fixed size for BERT embeddings
