@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from src.models.base_model import BaseModel
 from src.models.keywords_classifier import KeywordsClassifier
+from src.models.ltsm_classifier import LSTM_classifier
 from src.models.roberta import Roberta
 from src.utils.results import Results
 from src.utils.const import DEVICE
@@ -43,20 +44,10 @@ def test_classifier(
         labels = torch.tensor(labels)
 
         results.add_predictions(outputs, labels)
-
-    elif not is_deep_learning_model(classifier):
-        # classical ML
-
-        for emails, labels in tqdm(
-            dataloader, desc="Testing classifier", disable=not verbose
-        ):
-            outputs = classifier.predict(emails)
-            labels = torch.tensor(labels)
-
-            results.add_predictions(outputs, labels)
-
-    else:
+    elif isinstance(classifier, LSTM_classifier):
         # NN
+        print(f"dataloader type: {type(dataloader)}")
+        print(f"dataloader contents: {dataloader}")
 
         classifier.eval()
         classifier.to(DEVICE)
@@ -67,8 +58,22 @@ def test_classifier(
             ):
                 emails, labels = emails.to(DEVICE), labels.to(DEVICE)
 
+                if emails.dim() == 4:
+                    emails = emails.squeeze(1)  # Remove the extra dimension
+
                 outputs = classifier(emails).squeeze()
                 results.add_predictions(outputs, labels)
+
+    else:
+        # classical ML
+
+        for emails, labels in tqdm(
+            dataloader, desc="Testing classifier", disable=not verbose
+        ):
+            outputs = classifier.predict(emails)
+            labels = torch.tensor(labels)
+
+            results.add_predictions(outputs, labels)
 
     results.compute_metrics()
 

@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional, Tuple, Union
+import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
@@ -19,7 +20,7 @@ class LSTM_classifier(BaseModel):
 
     # training params
     lr = 0.0001
-    n_epochs = 10
+    n_epochs = 20
     decay_factor = 1.00004
 
     def __init__(
@@ -36,10 +37,14 @@ class LSTM_classifier(BaseModel):
         if checkpoint_path is not None:
             self.model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE))
 
-    def train(
+    def forward(self, input_sequence):
+        """Forward pass of the LSTM classifier"""
+        return self.model(input_sequence)
+
+    def train_model(
         self,
         dataloader: DataLoader,
-        save_path: Optional[str] = None,
+        save_path: Optional[str] = "lstm_checkpoint.pth",
     ):
         self.model = self.model.to(DEVICE)
         bce = nn.BCELoss().to(DEVICE)
@@ -85,6 +90,16 @@ class LSTM_classifier(BaseModel):
             "loss": losses[-1],
         }
         torch.save(checkpoint, save_path)
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(
+            range(1, self.n_epochs + 1), losses, marker="o", linestyle="-", color="b"
+        )
+        plt.xlabel("Epoch", fontsize=14)
+        plt.ylabel("Loss", fontsize=14)
+        plt.grid(True, linestyle="--", alpha=0.7)
+        plt.savefig("lstm_plot.png", dpi=300, bbox_inches="tight")
+        plt.close()
 
     def predict(self, X: Union[List[str], pd.Series]) -> np.ndarray:
         """Predict labels for a list of texts"""
