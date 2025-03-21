@@ -34,6 +34,8 @@ python3 spam_detection.py --model [model] --subject [subject] --body ["this is a
 python3 spam_detection.py --help
 ```
 
+return : array(is_spam), array(is_spam==ground_truth)
+
 #### Application web
 
 <img src="./plots/appweb.png">
@@ -50,7 +52,6 @@ Le premier lancement de chaque modèle peut prendre du temps.
 
 
 
-return : array(is_spam), array(is_spam==ground_truth)
 
 ### Evaluation (accuracy, precision, recall, f1)
 Le set de données utilisées est (`data/enron_spam_data.csv`)
