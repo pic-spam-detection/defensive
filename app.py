@@ -125,7 +125,7 @@ def run_model(classifier: str,
             model = LSTM_classifier(input_dim, checkpoint_path)
 
         elif classifier == "vote":
-            model = Vote(checkpoint_path=checkpoint_path, threshold=vote_threshold, use_meta_features=use_meta_features)
+            model = Vote(checkpoint_paths=checkpoint_path, threshold=vote_threshold, use_meta_features=use_meta_features)
 
         else:
             model = ClassicalMLClassifier(classifier, checkpoint_path, vectorizer_manager)
